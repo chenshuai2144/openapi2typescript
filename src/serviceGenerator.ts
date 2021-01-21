@@ -1,5 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { readFileSync, existsSync } from 'fs';
 import * as nunjucks from 'nunjucks';
 import chalk from 'chalk';
 import glob from 'glob';
@@ -19,6 +18,7 @@ import type {
 import { flatten, uniqBy } from 'lodash';
 import ReservedDict from 'reserved-words';
 import { join } from 'path';
+import Log from './log';
 
 import { writeFile, stripDot } from './util';
 import type { GenerateServiceProps } from './index';
@@ -51,7 +51,7 @@ export interface ControllerType {
 
 export const getPath = () => {
   const cwd = process.cwd();
-  return fs.existsSync(join(cwd, 'src')) ? join(cwd, 'src') : cwd;
+  return existsSync(join(cwd, 'src')) ? join(cwd, 'src') : cwd;
 };
 
 // 类型声明过滤关键字
@@ -187,13 +187,13 @@ export const getGenInfo = (isDirExist: boolean, appName: string, absSrcPath: str
   if (indexList && indexList.length) {
     const indexFile = join(absSrcPath, indexList[0]);
     try {
-      const line = (fs.readFileSync(indexFile, 'utf-8') || '').split(/\r?\n/).slice(0, 3).join('');
+      const line = (readFileSync(indexFile, 'utf-8') || '').split(/\r?\n/).slice(0, 3).join('');
       // dir 存在，index 存在， 且 index 是我们生成的。则未占用，且不是第一次
       if (line.includes('// API 更新时间：')) {
         return [false, false];
       }
       // dir 存在，index 存在，且 index 内容不是我们生成的。此时如果 oneapi 子文件存在，就不是第一次，否则是第一次
-      return [true, !fs.existsSync(join(indexFile, 'oneapi'))];
+      return [true, !existsSync(join(indexFile, 'oneapi'))];
     } catch (e) {
       // 因为 glob 已经拿到了这个文件，但没权限读，所以当作 dirUsed, 在子目录重新新建，所以当作 firstTime
       return [true, true];
@@ -203,8 +203,8 @@ export const getGenInfo = (isDirExist: boolean, appName: string, absSrcPath: str
   return [
     true,
     !(
-      fs.existsSync(join(absSrcPath, BASE_DIRS[0], appName, 'oneapi')) ||
-      fs.existsSync(join(absSrcPath, BASE_DIRS[1], appName, 'oneapi'))
+      existsSync(join(absSrcPath, BASE_DIRS[0], appName, 'oneapi')) ||
+      existsSync(join(absSrcPath, BASE_DIRS[1], appName, 'oneapi'))
     ),
   ];
 };
@@ -263,7 +263,7 @@ class ServiceGenerator {
   public genFile() {
     const basePath = this.config.serversPath || './src/service';
     try {
-      const finalPath = path.join(basePath, this.config.projectName);
+      const finalPath = join(basePath, this.config.projectName);
 
       this.finalPath = finalPath;
       glob
@@ -273,7 +273,7 @@ class ServiceGenerator {
           rimraf.sync(ele);
         });
     } catch (error) {
-      console.log(`[OneAPI] generating service failed: ${error}`);
+      Log(`[OneAPI] generating service failed: ${error}`);
     }
 
     // 生成 ts 类型声明
@@ -305,7 +305,7 @@ class ServiceGenerator {
     });
 
     if (prettierError.includes(true)) {
-      console.log(`${chalk.red('[OneAPI]')} 格式化失败，请检查 service 文件内可能存在的语法错误`);
+      Log(`${chalk.red('[OneAPI]')} 格式化失败，请检查 service 文件内可能存在的语法错误`);
     }
     // 生成 index 文件
     this.genFileFromTemplate(`index.ts`, 'serviceIndex', {
@@ -314,7 +314,7 @@ class ServiceGenerator {
     });
 
     // 打印日志
-    console.log(`[OneAPI]: 成功生成 service 文件`);
+    Log(`[OneAPI]: 成功生成 service 文件`);
   }
 
   public getServiceTP() {
@@ -634,7 +634,7 @@ class ServiceGenerator {
   }
 
   private getTemplate(type: 'interface' | 'serviceController' | 'serviceIndex'): string {
-    return fs.readFileSync(path.join(__dirname, '../', 'templates', `${type}.njk`), 'utf8');
+    return readFileSync(join(__dirname, '../', 'templates', `${type}.njk`), 'utf8');
   }
 
   // 获取 TS 类型的属性列表

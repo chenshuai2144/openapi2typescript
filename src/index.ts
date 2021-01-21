@@ -2,7 +2,9 @@
 /* eslint-disable import/no-dynamic-require */
 import type { OperationObject } from 'openapi3-ts';
 import fetch from 'node-fetch';
+import converter from 'swagger2openapi';
 import ServiceGenerator from './serviceGenerator';
+import Log from './log';
 
 const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath && requestLibPath.startsWith('import')) {
@@ -51,6 +53,21 @@ export type GenerateServiceProps = {
   namespace?: string;
 };
 
+const converterSwaggerToOpenApi = (swagger: any) => {
+  if (!swagger.swagger) {
+    return swagger;
+  }
+  return new Promise((resolve, reject) => {
+    converter.convertObj(swagger, {}, (err, options) => {
+      Log(['[OneAPI]: 将 Swagger 转化为 OneAPI']);
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(options.openapi);
+    });
+  });
+};
 const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
     const json = await fetch(schemaPath).then((rest) => rest.json());
@@ -67,6 +84,7 @@ export const generateService = async ({
   ...rest
 }: GenerateServiceProps) => {
   const schema = await getSchema(schemaPath);
+  const openAPI = await converterSwaggerToOpenApi(schema);
   if (!schema) {
     return;
   }
@@ -77,7 +95,7 @@ export const generateService = async ({
       requestImportStatement,
       ...rest,
     },
-    schema,
+    openAPI,
   );
   serviceGenerator.genFile();
 
