@@ -1,10 +1,11 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
 import type { OperationObject } from 'openapi3-ts';
+import fetch from 'node-fetch';
 import ServiceGenerator from './serviceGenerator';
 
 const getImportStatement = (requestLibPath: string) => {
-  if (requestLibPath.startsWith('import')) {
+  if (requestLibPath && requestLibPath.startsWith('import')) {
     return requestLibPath;
   }
   if (requestLibPath) {
@@ -50,16 +51,22 @@ export type GenerateServiceProps = {
   namespace?: string;
 };
 
+const getSchema = async (schemaPath: string) => {
+  if (schemaPath.startsWith('http')) {
+    const json = await fetch(schemaPath).then((rest) => rest.json());
+    return json;
+  }
+  const schema = require(schemaPath);
+  return schema;
+};
+
 // 从 appName 生成 service 数据
 export const generateService = async ({
   requestLibPath,
-  serversPath,
-  apiPrefix,
-  projectName,
   schemaPath,
+  ...rest
 }: GenerateServiceProps) => {
-  const schema = require(schemaPath);
-
+  const schema = await getSchema(schemaPath);
   if (!schema) {
     return;
   }
@@ -67,14 +74,12 @@ export const generateService = async ({
   const serviceGenerator = new ServiceGenerator(
     {
       namespace: 'API',
-      apiPrefix: apiPrefix || '',
-      hook: {},
-      projectName,
       requestImportStatement,
-      serversPath,
+      ...rest,
     },
     schema,
   );
-
   serviceGenerator.genFile();
+
+  process.exit();
 };

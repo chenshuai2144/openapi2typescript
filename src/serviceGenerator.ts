@@ -230,7 +230,10 @@ class ServiceGenerator {
 
   constructor(config: GenerateServiceProps, openAPIData: OpenAPIObject) {
     this.finalPath = '';
-    this.config = config;
+    this.config = {
+      projectName: 'api',
+      ...config,
+    };
     this.openAPIData = openAPIData;
     const { info } = openAPIData;
     const basePath = '';
@@ -257,9 +260,8 @@ class ServiceGenerator {
     });
   }
 
-  public genFile(): void {
+  public genFile() {
     const basePath = this.config.serversPath || './src/service';
-
     try {
       const finalPath = path.join(basePath, this.config.projectName);
 

@@ -15,6 +15,7 @@
     "eslint": "^7.18.0",
     "glob": "^7.1.6",
     "lodash": "^4.17.20",
+    "node-fetch": "^2.6.1",
     "nunjucks": "^3.2.2",
     "openapi-generator": "^0.1.39",
     "openapi3-ts": "^2.0.1",

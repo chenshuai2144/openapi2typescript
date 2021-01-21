@@ -41,7 +41,6 @@ export const prettierFile = (content: string, fileType: 'ts' | 'js'): [string, b
 };
 
 export const writeFile = (folderPath: string, fileName: string, content: string) => {
-  // const filePath = path.join(process.cwd(), folderPath, fileName);
   const filePath = path.join(folderPath, fileName);
   mkdir(path.dirname(filePath));
   const [prettierContent, hasError] = prettierFile(content, 'ts');
@@ -122,7 +121,7 @@ type serviceParams = Record<string, serviceParam>;
  */
 export function formatParamsForYFH(
   params: serviceParams,
-  paramsObject: serviceParams = {}
+  paramsObject: serviceParams = {},
 ): serviceParams {
   Object.keys(params).forEach((name) => {
     const prop = params[name];
@@ -184,13 +183,13 @@ function combineParams(
   child_key: string,
   prop: serviceParam,
   paramsObject: serviceParams,
-  type?: string
+  type?: string,
 ): serviceParam {
   const typeSuffix = type === '.n.key.m' ? '[]' : '';
   const keySuffix = type === '.n.key' || type === '.n.key.m' ? '[]' : '';
   if (paramsObject[key]) {
     const child_type = `{${child_key}:${prop.type}${typeSuffix}, ${paramsObject[key].type.slice(
-      1
+      1,
     )}`;
     paramsObject[key] = {
       ...paramsObject[key],

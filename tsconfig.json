@@ -11,6 +11,6 @@
     "skipLibCheck": true,
     "declaration": true
   },
-  "include": ["src/**/*", ".eslintrc.js"],
+  "include": ["src/**/*", "test/**/*", ".eslintrc.js"],
   "exclude": ["node_modules", "lib", "es", "dist", "**/__tests__", "**/__test__", "**/demo"]
 }
