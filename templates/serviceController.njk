@@ -1,0 +1,162 @@
+// @ts-nocheck
+/* eslint-disable */
+{{ requestImportStatement }}
+
+{% for api in list -%}
+/** {{ api.desc if api.desc else '此处后端没有提供注释' }} {{api.method | upper}} {{ api.pathInComment | safe }} */
+export async function {{ api.functionName }}(
+{%- if api.params and api.hasParams %}
+  params
+  {%- if genType === "ts" -%}
+  : {
+    {# query 入参 -#}
+    {% if api.params.query -%}
+    // query
+    {% for param in api.params.query -%}
+    {% if param.description -%}
+    /** {{ param.description }} */
+    {% endif -%}
+      '{{ param.name }}'
+      {{- "?" if not param.required }}
+      {{- (": " + param.type + ";") | safe }}
+    {% endfor -%}
+    {% endif -%}
+
+    {# header 入参 -#}
+    {% if api.params.header -%}
+    // header
+    {% for param in api.params.header -%}
+    {% if param.description -%}
+    /** {{ param.description }} */
+    {% endif -%}
+      '{{ param.name }}'
+      {{- "?" if not param.required }}
+      {{- (": " + param.type + ";") | safe }}
+    {% endfor -%}
+    {% endif -%}
+
+    {# path 入参 -#}
+    {% if api.params.path -%}
+    // path
+    {% for param in api.params.path -%}
+    {% if param.description -%}
+    /** {{ param.description }} */
+    {% endif -%}
+      '{{ param.name }}'
+      {{- "?" if not param.required }}
+      {{- (": " + param.type + ";") | safe }}
+    {% endfor -%}
+    {% endif -%}
+  }
+  {%- endif -%}
+  {%- if api.hasParams %}
+  {{ "," if api.body or api.file}}
+  {%- endif %}
+{%- endif -%}
+{%- if api.body %}
+  body
+  {%- if genType === "ts" -%}
+  {{- "?" if not api.body.required }}
+  : {% if api.body.propertiesList %}{
+    {%- for prop in api.body.propertiesList %}
+    {% if prop.schema.description -%}
+    /** {{ prop.schema.description }} */
+    {% endif -%}
+    {{ prop.key }}{{ "?" if not prop.schema.requird }}: {{ prop.schema.type }},
+    {%- endfor %}
+  }
+  {%- else -%}
+  {{ api.body.type }}
+  {%- endif -%}
+  {%- endif -%}
+  {{ "," if api.file }}
+{%- endif %}
+{%- if api.file %}
+files
+{%- if genType === "ts" -%}
+{{- "?" if not api.file.required }}
+: File[]
+{%- endif -%}
+{%- endif -%}
+{{ "," if api.body or api.hasParams or api.file }}
+  options {{ "?: {[key: string]: any}" if genType === "ts" }}
+) {
+  {% if api.params and api.params.path -%}
+  const { {% for param in api.params.path %}'{{ param.name }}': {{ param.alias }}, {% endfor %}
+  {% if api.params.query -%}
+  ...queryParams
+  {% endif -%}
+  } = params;
+  {% endif -%}
+
+  {% if api.hasFormData -%}
+  const formData = new FormData();
+  {% if api.file -%}
+  if(files){
+  {% for file in api.file %}
+  formData.append('{{file.title | safe}}', files[{{ loop.index - 1 }}] || '')
+  {% endfor %}
+  }
+  {%- endif -%}
+  {% if api.body %}
+  Object.keys(body).forEach(ele => {
+    {% if genType === "ts" %}
+    const item = (body as any)[ele];
+    {% else %}
+    const item = body[ele];
+    {% endif %}
+    if (item !== undefined && item !== null) {
+      form.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
+    }
+  });
+  {% endif %}
+  {% endif -%}
+
+  {% if api.hasPathVariables or api.hasApiPrefix -%}
+  return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}(`{{ api.path | safe }}`, {
+  {% else -%}
+  return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}('{{ api.path }}', {
+  {% endif -%}
+    method: '{{ api.method | upper }}',
+    {%- if api.hasHeader %}
+    headers: {
+      {%- if api.body.mediaType %}
+      'Content-Type': '{{ api.body.mediaType | safe }}',
+      {%- endif %}
+      {%- for header in api.params.header %}
+      '{{header.name | safe}}': params['{{header.name}}'],
+      {%- endfor -%}
+    },
+    {%- endif %}
+    {%- if api.params and api.hasParams %}
+    params: {
+      {%- for query in api.params.query %}
+        {% if query.schema.default -%}
+          // {{query.name | safe}} has a default value: {{ query.schema.default | safe }}
+          '{{query.name | safe}}': '{{query.schema.default | safe}}',
+        {%- endif -%}
+      {%- endfor -%}
+      ...{{ 'queryParams' if api.params and api.params.path and api.params.query else 'params' }},
+      {%- for query in api.params.query %}
+        {%- if query.isComplexType %}
+          '{{query.name | safe}}': undefined,
+          ...{{ 'queryParams' if api.params and api.params.path and api.params.query else 'params' }}['{{query.name | safe}}'],
+        {%- endif %}
+      {%- endfor -%}
+    },
+    {%- endif %}
+    {%- if api.hasFormData %}
+    data: formData,
+    {%- else %}
+    {%- if api.body %}
+    data: body,
+    {%- endif %}
+    {%- endif %}
+    {%- if api.response.responseType %}
+    responseType: '{{ api.response.responseType | safe }}',
+    {%- endif %}
+    ...(options || {}),
+  });
+}
+
+{% endfor -%}

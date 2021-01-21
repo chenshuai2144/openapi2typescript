@@ -1,0 +1,14 @@
+// @ts-nocheck
+/* eslint-disable */
+// API 更新时间：{{ apiResourceModifyTime }}
+// API 唯一标识：{{ apiResourceId }}
+{% for api in list -%}
+import * as {{ api.controllerName }} from './{{ api.fileName }}'
+{% endfor -%}
+
+
+export default {
+  {% for api in list -%}
+  {{ api.controllerName }},
+  {% endfor -%}
+}
