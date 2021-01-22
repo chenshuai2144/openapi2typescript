@@ -1,6 +1,6 @@
-const oneapi = require('../dist/index');
+const openAPI = require('../dist/index');
 
-oneapi.generateService({
+openAPI.generateService({
   schemaPath: './swagger.json',
   serversPath: './servers',
 });

@@ -57,7 +57,7 @@ export const getPath = () => {
 // 类型声明过滤关键字
 const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
-    return `__oneapi__${typeName}`;
+    return `__openAPI__${typeName}`;
   }
   return typeName;
 };
@@ -192,19 +192,19 @@ export const getGenInfo = (isDirExist: boolean, appName: string, absSrcPath: str
       if (line.includes('// API 更新时间：')) {
         return [false, false];
       }
-      // dir 存在，index 存在，且 index 内容不是我们生成的。此时如果 oneapi 子文件存在，就不是第一次，否则是第一次
-      return [true, !existsSync(join(indexFile, 'oneapi'))];
+      // dir 存在，index 存在，且 index 内容不是我们生成的。此时如果 openAPI 子文件存在，就不是第一次，否则是第一次
+      return [true, !existsSync(join(indexFile, 'openAPI'))];
     } catch (e) {
       // 因为 glob 已经拿到了这个文件，但没权限读，所以当作 dirUsed, 在子目录重新新建，所以当作 firstTime
       return [true, true];
     }
   }
-  // dir 存在，index 不存在, 冲突，第一次要看 dir 下有没有 oneapi 文件夹
+  // dir 存在，index 不存在, 冲突，第一次要看 dir 下有没有 openAPI 文件夹
   return [
     true,
     !(
-      existsSync(join(absSrcPath, BASE_DIRS[0], appName, 'oneapi')) ||
-      existsSync(join(absSrcPath, BASE_DIRS[1], appName, 'oneapi'))
+      existsSync(join(absSrcPath, BASE_DIRS[0], appName, 'openAPI')) ||
+      existsSync(join(absSrcPath, BASE_DIRS[1], appName, 'openAPI'))
     ),
   ];
 };
@@ -273,7 +273,7 @@ class ServiceGenerator {
           rimraf.sync(ele);
         });
     } catch (error) {
-      Log(`[OneAPI] generating service failed: ${error}`);
+      Log(`[openAPI] generating service failed: ${error}`);
     }
 
     // 生成 ts 类型声明
@@ -305,7 +305,7 @@ class ServiceGenerator {
     });
 
     if (prettierError.includes(true)) {
-      Log(`${chalk.red('[OneAPI]')} 格式化失败，请检查 service 文件内可能存在的语法错误`);
+      Log(`${chalk.red('[openAPI]')} 格式化失败，请检查 service 文件内可能存在的语法错误`);
     }
     // 生成 index 文件
     this.genFileFromTemplate(`index.ts`, 'serviceIndex', {
@@ -314,7 +314,7 @@ class ServiceGenerator {
     });
 
     // 打印日志
-    Log(`[OneAPI]: 成功生成 service 文件`);
+    Log(`[openAPI]: 成功生成 service 文件`);
   }
 
   public getServiceTP() {

@@ -59,7 +59,7 @@ const converterSwaggerToOpenApi = (swagger: any) => {
   }
   return new Promise((resolve, reject) => {
     converter.convertObj(swagger, {}, (err, options) => {
-      Log(['[OneAPI]: 将 Swagger 转化为 OneAPI']);
+      Log(['[openAPI]: 将 Swagger 转化为 openAPI']);
       if (err) {
         reject(err);
         return;
