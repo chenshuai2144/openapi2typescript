@@ -450,7 +450,8 @@ class ServiceGenerator {
                 response,
               };
             } catch (error) {
-              console.warn('[GenSDK] gen service param error:', error);
+              // eslint-disable-next-line no-console
+              console.error('[GenSDK] gen service param error:', error);
               throw error;
             }
           });
@@ -628,7 +629,8 @@ class ServiceGenerator {
 
       return writeFile(this.finalPath, fileName, nunjucks.renderString(template, params));
     } catch (error) {
-      console.warn('[GenSDK] file gen fail:', fileName, 'type:', type);
+      // eslint-disable-next-line no-console
+      console.error('[GenSDK] file gen fail:', fileName, 'type:', type);
       throw error;
     }
   }
