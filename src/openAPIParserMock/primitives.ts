@@ -8,6 +8,7 @@ export default {
   string_cname: '@cname',
   'string_string(16)': 'string(16)',
   'string_date-time': '@datetime',
+  string_date: '@date',
   number: '@integer(60, 100)',
   number_float: '@float(60, 100, 3, 5)',
   integer: '@integer(60, 100)',
