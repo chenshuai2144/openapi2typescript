@@ -23,7 +23,6 @@ import { writeFile, stripDot } from './util';
 import type { GenerateServiceProps } from './index';
 
 const BASE_DIRS = ['service', 'services'];
-const debug = require('debug')('openapi-generator');
 
 const ONLY_USE_NAME_AS_ENUM_APP_LIST = ['alphad', 'zmyschecker'];
 
@@ -276,7 +275,6 @@ class ServiceGenerator {
     }
 
     // 生成 ts 类型声明
-    debug('[GenSDK] gen interface.');
     this.genFileFromTemplate('typings.d.ts', 'interface', {
       namespace: this.config.namespace,
       // namespace: 'API',
@@ -287,7 +285,6 @@ class ServiceGenerator {
     const prettierError = [];
     // 生成 service 统计
     this.getServiceTP().forEach((tp) => {
-      debug('[GenSDK] generate service:', tp.className);
       // 根据当前数据源类型选择恰当的 controller 模版
       const template = 'serviceController';
       const hasError = this.genFileFromTemplate(
