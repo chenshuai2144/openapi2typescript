@@ -120,7 +120,6 @@ ${mockFunction.join('\n,')}
 export type genMockDataServerConfig = { openAPI: any; mockFolder: string };
 
 const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) => {
-  Log('开始生成 mock 文件');
   const docs = swaggerParserMock(openAPI);
   const pathList = Object.keys(docs.paths);
   const { paths } = docs;
@@ -151,7 +150,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
       encoding: 'utf8',
     });
   });
-  Log('✅ 生成 mock 文件');
+  Log('✅ 生成 mock 文件成功');
 };
 
 export { mockGenerator };
