@@ -3,7 +3,8 @@
 import type { OperationObject } from 'openapi3-ts';
 import fetch from 'node-fetch';
 import converter from 'swagger2openapi';
-import ServiceGenerator from './serviceGenerator';
+import { ServiceGenerator } from './serviceGenerator';
+import { mockGenerator } from './mockGenerator';
 import Log from './log';
 
 const getImportStatement = (requestLibPath: string) => {
@@ -59,7 +60,7 @@ const converterSwaggerToOpenApi = (swagger: any) => {
   }
   return new Promise((resolve, reject) => {
     converter.convertObj(swagger, {}, (err, options) => {
-      Log(['[openAPI]: 将 Swagger 转化为 openAPI']);
+      Log(['💺 将 Swagger 转化为 openAPI']);
       if (err) {
         reject(err);
         return;
@@ -77,17 +78,22 @@ const getSchema = async (schemaPath: string) => {
   return schema;
 };
 
+const getOpenAPIConfig = async (schemaPath: string) => {
+  const schema = await getSchema(schemaPath);
+  const openAPI = await converterSwaggerToOpenApi(schema);
+  if (!schema) {
+    return null;
+  }
+  return openAPI;
+};
+
 // 从 appName 生成 service 数据
 export const generateService = async ({
   requestLibPath,
   schemaPath,
   ...rest
 }: GenerateServiceProps) => {
-  const schema = await getSchema(schemaPath);
-  const openAPI = await converterSwaggerToOpenApi(schema);
-  if (!schema) {
-    return;
-  }
+  const openAPI = await getOpenAPIConfig(schemaPath);
   const requestImportStatement = getImportStatement(requestLibPath);
   const serviceGenerator = new ServiceGenerator(
     {
@@ -98,6 +104,11 @@ export const generateService = async ({
     openAPI,
   );
   serviceGenerator.genFile();
+
+  await mockGenerator({
+    openAPI,
+    mockFolder: './mocks/',
+  });
 
   process.exit();
 };

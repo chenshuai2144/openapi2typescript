@@ -1,6 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
 import * as nunjucks from 'nunjucks';
-import chalk from 'chalk';
 import glob from 'glob';
 import rimraf from 'rimraf';
 import type {
@@ -273,7 +272,7 @@ class ServiceGenerator {
           rimraf.sync(ele);
         });
     } catch (error) {
-      Log(`[openAPI] generating service failed: ${error}`);
+      Log(`🚥 serves 生成失败: ${error}`);
     }
 
     // 生成 ts 类型声明
@@ -305,7 +304,7 @@ class ServiceGenerator {
     });
 
     if (prettierError.includes(true)) {
-      Log(`${chalk.red('[openAPI]')} 格式化失败，请检查 service 文件内可能存在的语法错误`);
+      Log(`🚥 格式化失败，请检查 service 文件内可能存在的语法错误`);
     }
     // 生成 index 文件
     this.genFileFromTemplate(`index.ts`, 'serviceIndex', {
@@ -314,7 +313,7 @@ class ServiceGenerator {
     });
 
     // 打印日志
-    Log(`[openAPI]: 成功生成 service 文件`);
+    Log(`✅ 成功生成 service 文件`);
   }
 
   public getServiceTP() {
@@ -792,4 +791,4 @@ class ServiceGenerator {
   }
 }
 
-export default ServiceGenerator;
+export { ServiceGenerator };

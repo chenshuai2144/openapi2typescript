@@ -23,7 +23,7 @@ export const mkdir = (dir: string) => {
   }
 };
 
-export const prettierFile = (content: string, fileType: 'ts' | 'js'): [string, boolean] => {
+export const prettierFile = (content: string): [string, boolean] => {
   let result = content;
   let hasError = false;
   try {
@@ -31,7 +31,7 @@ export const prettierFile = (content: string, fileType: 'ts' | 'js'): [string, b
       singleQuote: true,
       trailingComma: 'all',
       printWidth: 100,
-      parser: fileType === 'js' ? 'babel' : 'typescript',
+      parser: 'typescript',
       ...defaultPrettierOptions,
     });
   } catch (error) {
@@ -43,7 +43,7 @@ export const prettierFile = (content: string, fileType: 'ts' | 'js'): [string, b
 export const writeFile = (folderPath: string, fileName: string, content: string) => {
   const filePath = path.join(folderPath, fileName);
   mkdir(path.dirname(filePath));
-  const [prettierContent, hasError] = prettierFile(content, 'ts');
+  const [prettierContent, hasError] = prettierFile(content);
   fs.writeFileSync(filePath, prettierContent, {
     encoding: 'utf8',
   });
