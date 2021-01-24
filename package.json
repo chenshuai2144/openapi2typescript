@@ -4,7 +4,10 @@
   "description": "",
   "license": "MIT",
   "author": "chenshuai2144",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "tsc -w",
     "build":"tsc",
