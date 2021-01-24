@@ -1,7 +1,6 @@
 {
   "name": "@umijs/openapi",
   "version": "1.0.0",
-  "private": "false",
   "description": "",
   "license": "MIT",
   "author": "chenshuai2144",
