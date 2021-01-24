@@ -13,6 +13,9 @@ const getDateByName = (name: string) => {
   if (['username', 'firstName', 'lastName'].includes(name)) {
     return 'cname';
   }
+  if (name.toLocaleLowerCase().endsWith('id')) {
+    return 'id';
+  }
   if (['email'].includes(name)) {
     return 'email';
   }
@@ -36,13 +39,23 @@ const getDateByName = (name: string) => {
   }
   if (
     ['url', 'imageUrl'].includes(name) ||
-    name.endsWith('url') ||
-    name.endsWith('Url') ||
-    name.endsWith('Urls')
+    name.toLocaleLowerCase().endsWith('url') ||
+    name.toLocaleLowerCase().endsWith('urls') ||
+    name.toLocaleLowerCase().endsWith('image') ||
+    name.toLocaleLowerCase().endsWith('link')
   ) {
     return 'url';
   }
-  if (['type', 'status'].includes(name) || name.endsWith('Status') || name.endsWith('Type')) {
+
+  if (name.toLocaleLowerCase().endsWith('errorcode')) {
+    return 'errorCode';
+  }
+
+  if (
+    ['type', 'status'].includes(name) ||
+    name.toLocaleLowerCase().endsWith('status') ||
+    name.toLocaleLowerCase().endsWith('type')
+  ) {
     return 'status';
   }
   return 'csentence';
