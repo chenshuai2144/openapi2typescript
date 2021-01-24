@@ -6,7 +6,8 @@
   "author": "chenshuai2144",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ],
   "scripts": {
     "build": "tsc",
@@ -23,12 +24,10 @@
     "mockjs": "^1.1.0",
     "node-fetch": "^2.6.1",
     "nunjucks": "^3.2.2",
-    "openapi-generator": "^0.1.39",
     "openapi3-ts": "^2.0.1",
     "prettier": "^2.2.1",
     "reserved-words": "^0.1.2",
     "rimraf": "^3.0.2",
-    "swagger-parser-mock": "^1.1.2",
     "swagger2openapi": "^7.0.4"
   },
   "devDependencies": {
