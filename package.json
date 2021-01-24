@@ -1,6 +1,6 @@
 {
   "name": "openapi2typescript",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "license": "MIT",
   "author": "chenshuai2144",
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "start": "tsc -w",
-    "build":"tsc",
+    "build": "tsc",
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch"
   },
   "dependencies": {
