@@ -52,6 +52,8 @@ export type GenerateServiceProps = {
     customClassName?: (tagName: string) => string;
   };
   namespace?: string;
+
+  mockFolder?: string;
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
@@ -91,6 +93,7 @@ const getOpenAPIConfig = async (schemaPath: string) => {
 export const generateService = async ({
   requestLibPath,
   schemaPath,
+  mockFolder,
   ...rest
 }: GenerateServiceProps) => {
   const openAPI = await getOpenAPIConfig(schemaPath);
@@ -105,10 +108,12 @@ export const generateService = async ({
   );
   serviceGenerator.genFile();
 
-  await mockGenerator({
-    openAPI,
-    mockFolder: './mocks/',
-  });
+  if (mockFolder) {
+    await mockGenerator({
+      openAPI,
+      mockFolder: mockFolder || './mocks/',
+    });
+  }
 
   process.exit();
 };
