@@ -1,6 +1,7 @@
 {
-  "name": "openapi2typescript",
-  "version": "1.0.1",
+  "name": "@umijs/openapi",
+  "version": "0.0.1",
+  "private": "false",
   "description": "",
   "license": "MIT",
   "author": "chenshuai2144",
@@ -9,9 +10,9 @@
     "dist"
   ],
   "scripts": {
-    "start": "tsc -w",
     "build": "tsc",
-    "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch"
+    "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
+    "start": "tsc -w"
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
