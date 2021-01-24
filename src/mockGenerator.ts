@@ -1,11 +1,9 @@
-import swaggerParserMock from './swaggerParserMock/index';
 import Mock from 'mockjs';
 import fs from 'fs';
 import { prettierFile } from './util';
 import { join } from 'path';
+import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
-
-const { Random } = Mock;
 
 Mock.Random.extend({
   phone() {
@@ -18,70 +16,23 @@ Mock.Random.extend({
   },
 });
 
-const parseString = (example: string): Record<string, any> => {
-  try {
-    return JSON.parse(example);
-  } catch (error) {
-    return {};
-  }
-};
-
-const getDateByName = (name: string) => {
-  if (['username', 'firstName', 'lastName'].includes(name)) {
-    return Random.cname();
-  }
-  if (['email'].includes(name)) {
-    return Random.email();
-  }
-  if (['password'].includes(name)) {
-    return Mock.mock('@string(16)');
-  }
-  if (['phone'].includes(name)) {
-    return Mock.mock('@phone');
-  }
-  if (['province'].includes(name)) {
-    return Mock.mock('@province');
-  }
-  if (['city'].includes(name)) {
-    return Mock.mock('@city');
-  }
-  if (['county'].includes(name)) {
-    return Mock.mock('@county');
-  }
-  if (['addr', 'address'].includes(name)) {
-    return Mock.mock('@county(true)');
-  }
-  if (['url', 'imageUrl'].includes(name) || name.endsWith('url') || name.endsWith('Url')) {
-    return Mock.mock('@url');
-  }
-  if (['type', 'status'].includes(name) || name.endsWith('Status') || name.endsWith('Type')) {
-    return Mock.mock('@status');
-  }
-  return Mock.mock('@csentence');
-};
-
 const genMockData = (example: string) => {
   if (!example) {
     return {};
   }
-  const obj = parseString(example);
-  if (!obj) {
-    return {};
-  }
-  if (typeof obj === 'string') {
-    return Mock.mock(obj);
+
+  if (typeof example === 'string') {
+    return Mock.mock(example);
   }
 
-  return Object.keys(obj)
+  if (Array.isArray(example)) {
+    return Mock.mock(example);
+  }
+
+  return Object.keys(example)
     .map((name) => {
-      const valueType = obj[name];
-      if (valueType === '@string') {
-        return {
-          [name]: getDateByName(name),
-        };
-      }
       return {
-        [name]: Mock.mock(obj[name]),
+        [name]: Mock.mock(example[name]),
       };
     })
     .reduce((pre, next) => {
@@ -120,7 +71,8 @@ ${mockFunction.join('\n,')}
 export type genMockDataServerConfig = { openAPI: any; mockFolder: string };
 
 const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) => {
-  const docs = swaggerParserMock(openAPI);
+  const openAPParse = new OpenAPIParserMock(openAPI);
+  const docs = openAPParse.parser();
   const pathList = Object.keys(docs.paths);
   const { paths } = docs;
   const mockActionsObj = {};

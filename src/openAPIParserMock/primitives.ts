@@ -1,6 +1,12 @@
-module.exports = {
+export default {
   string: '@string',
   string_email: '@email',
+  string_phone: '@phone',
+  string_username: '@cname',
+  string_url: '@url',
+  string_csentence: '@csentence',
+  string_cname: '@cname',
+  'string_string(16)': 'string(16)',
   'string_date-time': '@datetime',
   number: '@integer(60, 100)',
   number_float: '@float(60, 100, 3, 5)',

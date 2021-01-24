@@ -7,6 +7,20 @@ function objectify(thing) {
   return thing;
 }
 
+function get(entity: any, path: (string | number)[]) {
+  let current = entity;
+
+  for (let i = 0; i < path.length; i += 1) {
+    if (current === null || current === undefined) {
+      return undefined;
+    }
+
+    current = current[path[i]];
+  }
+
+  return current;
+}
+
 function normalizeArray(arr) {
   if (Array.isArray(arr)) return arr;
   return [arr];
@@ -31,4 +45,4 @@ function inferSchema(thing) {
   return thing;
 }
 
-export { isObject, objectify, isFunc, inferSchema, normalizeArray };
+export { isObject, get, objectify, isFunc, inferSchema, normalizeArray };
