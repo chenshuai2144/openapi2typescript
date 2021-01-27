@@ -54,6 +54,9 @@ const genByTemp = ({
   status: string;
   data: string;
 }) => {
+  if (!['get', 'put', 'post', 'delete', 'patch'].includes(method.toLocaleLowerCase())) {
+    return '';
+  }
   return `'${method.toUpperCase()} ${path}': (req: Request, res: Response) => {
     res.status(${status}).send(${data});
   }`;
@@ -81,24 +84,29 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     Object.keys(pathConfig).forEach((method) => {
       const methodConfig = pathConfig[method];
       if (methodConfig) {
-        const conte = methodConfig?.tags?.join('/') || methodConfig.operationId;
+        const conte =
+          methodConfig?.tags?.join('/') ||
+          path.replace('/', '').split('/')[1] ||
+          methodConfig.operationId;
+
         const data = genMockData(methodConfig.responses?.['200']?.example);
         if (!mockActionsObj[conte]) {
           mockActionsObj[conte] = [];
         }
-        mockActionsObj[conte].push(
-          genByTemp({
-            method,
-            path,
-            status: '200',
-            data: JSON.stringify(data),
-          }),
-        );
+        const tempFile = genByTemp({
+          method,
+          path,
+          status: '200',
+          data: JSON.stringify(data),
+        });
+        if (tempFile) {
+          mockActionsObj[conte].push(tempFile);
+        }
       }
     });
   });
   Object.keys(mockActionsObj).forEach((file) => {
-    if (!file) {
+    if (!file || file === 'undefined') {
       return;
     }
     fs.writeFileSync(join(mockFolder, `${file}.mock.ts`), genMockFiles(mockActionsObj[file]), {
