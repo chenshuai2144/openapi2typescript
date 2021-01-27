@@ -12,8 +12,14 @@ const openAPI = require('../dist/index');
 //    mockFolder: './mocks',
 // });
 
+// openAPI.generateService({
+//   schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/LyDMjDyIhK/1611471979478-opa.json',
+//   serversPath: './servers',
+//   mockFolder: './mocks',
+// });
+
 openAPI.generateService({
-  schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/LyDMjDyIhK/1611471979478-opa.json',
+  schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/Zd7dLTHUjE/ant-design-pro.json',
   serversPath: './servers',
   mockFolder: './mocks',
 });

@@ -81,8 +81,8 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     Object.keys(pathConfig).forEach((method) => {
       const methodConfig = pathConfig[method];
       if (methodConfig) {
-        const conte = methodConfig.tags.join('/');
-        const data = genMockData(methodConfig.responses['200']?.example);
+        const conte = methodConfig?.tags?.join('/') || methodConfig.operationId;
+        const data = genMockData(methodConfig.responses?.['200']?.example);
         if (!mockActionsObj[conte]) {
           mockActionsObj[conte] = [];
         }
@@ -98,6 +98,9 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     });
   });
   Object.keys(mockActionsObj).forEach((file) => {
+    if (!file) {
+      return;
+    }
     fs.writeFileSync(join(mockFolder, `${file}.mock.ts`), genMockFiles(mockActionsObj[file]), {
       encoding: 'utf8',
     });

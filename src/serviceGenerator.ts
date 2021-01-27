@@ -243,8 +243,7 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-
-        (operationObject.tags || []).forEach((tag) => {
+        (operationObject.tags || [p.replace('/', '').split('/')[1]]).forEach((tag) => {
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
           }
@@ -318,7 +317,6 @@ class ServiceGenerator {
       .map((tag) => {
         // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
-
         const genParams = this.apiData[tag]
           .filter(
             (api) =>
@@ -451,7 +449,6 @@ class ServiceGenerator {
               throw error;
             }
           });
-
         const fileName = this.replaceDot(tag);
 
         if (genParams.length) {
