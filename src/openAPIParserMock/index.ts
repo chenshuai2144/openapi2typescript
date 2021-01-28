@@ -6,16 +6,50 @@ import memoizee from 'memoizee';
 import * as utils from './utils';
 import primitives from './primitives';
 
-const getDateByName = (name: string) => {
-  if (!name) {
+const getDateByName = (name: string[] | string, parentsKey?: string[]) => {
+  if (!name || name.length < 1) {
     return 'string';
   }
-  if (['username', 'firstName', 'lastName'].includes(name)) {
+  if (Array.isArray(name)) {
+    return getDateByName([...name].pop(), name);
+  }
+  if (['nickname', 'name'].includes(name)) {
     return 'cname';
   }
+  if (['owner', 'firstName', 'lastName', 'username'].includes(name)) {
+    return 'name';
+  }
+  if (['avatar'].includes(name)) {
+    return 'avatar';
+  }
+
+  if (['group'].includes(name)) {
+    return 'group';
+  }
+
   if (name.toLocaleLowerCase().endsWith('id')) {
+    return 'uuid';
+  }
+
+  if (
+    name.toLocaleLowerCase().endsWith('type') ||
+    name.toLocaleLowerCase().endsWith('key') ||
+    ['key'].includes(name)
+  ) {
     return 'id';
   }
+
+  if (name.toLocaleLowerCase().endsWith('label') || ['label'].includes(name)) {
+    const newParents = [...parentsKey];
+    newParents.pop();
+    const newType = getDateByName(newParents);
+    if (newType !== 'string' && newType !== 'csentence') {
+      return newType;
+    }
+
+    return 'label';
+  }
+
   if (['email'].includes(name)) {
     return 'email';
   }
@@ -31,20 +65,22 @@ const getDateByName = (name: string) => {
   if (['city'].includes(name)) {
     return 'city';
   }
-  if (['county'].includes(name)) {
+  if (['addr', 'address'].includes(name)) {
     return 'county';
   }
-  if (['addr', 'address'].includes(name)) {
-    return 'county(true)';
+
+  if (['country'].includes(name)) {
+    return 'country';
   }
+
   if (
-    ['url', 'imageUrl'].includes(name) ||
+    ['url', 'imageUrl', 'href'].includes(name) ||
     name.toLocaleLowerCase().endsWith('url') ||
     name.toLocaleLowerCase().endsWith('urls') ||
     name.toLocaleLowerCase().endsWith('image') ||
     name.toLocaleLowerCase().endsWith('link')
   ) {
-    return 'url';
+    return 'href';
   }
 
   if (name.toLocaleLowerCase().endsWith('errorcode')) {
@@ -58,6 +94,11 @@ const getDateByName = (name: string) => {
   ) {
     return 'status';
   }
+
+  if (name.toLocaleLowerCase().endsWith('authority')) {
+    return 'authority';
+  }
+
   return 'csentence';
 };
 
@@ -79,7 +120,7 @@ class OpenAPIGeneratorMockJs {
     this.sampleFromSchema = memoizee(this.sampleFromSchema);
   }
 
-  sampleFromSchema = (schema: any, propsName?: string) => {
+  sampleFromSchema = (schema: any, propsName?: string[]) => {
     const localSchema = schema.$ref
       ? utils.get(this.openAPI, schema.$ref.replace('#/', '').split('/'))
       : utils.objectify(schema);
@@ -101,7 +142,7 @@ class OpenAPIGeneratorMockJs {
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};
       for (const name in props) {
-        obj[name] = this.sampleFromSchema(props[name], name);
+        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name]);
       }
 
       if (additionalProperties === true) {
