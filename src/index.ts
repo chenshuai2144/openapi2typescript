@@ -117,3 +117,5 @@ export const generateService = async ({
 
   process.exit();
 };
+
+export { getSchema };
