@@ -24,8 +24,6 @@ import type { GenerateServiceProps } from './index';
 
 const BASE_DIRS = ['service', 'services'];
 
-const ONLY_USE_NAME_AS_ENUM_APP_LIST = ['alphad', 'zmyschecker'];
-
 export type TypescriptFileType = 'interface' | 'serviceController' | 'serviceIndex';
 
 export interface APIDataType extends OperationObject {
@@ -590,9 +588,10 @@ class ServiceGenerator {
 
         return Object.keys(defines).map((typeName) => {
           const result = this.resolveObject(defines[typeName]);
+
           const getDefinesType = () => {
             if (result.type) {
-              return (defines[typeName] as SchemaObject).type === 'object';
+              return (defines[typeName] as SchemaObject).type === 'object' || result.type;
             }
             return 'Record<string, any>';
           };
@@ -693,38 +692,13 @@ class ServiceGenerator {
   }
 
   resolveEnumObject(schemaObject: SchemaObject) {
-    let enumArray;
+    const enumArray = schemaObject.enum;
 
-    if (schemaObject.extensions && schemaObject.extensions['x-enum-fields']) {
-      const enumSet = new Set();
-      // 如果存在 x-enum-fields，优先读 x-enum-fields 的信息
-      Object.entries(schemaObject.extensions['x-enum-fields']).forEach(
-        ([enumName, enumDef]: [string, any]) => {
-          // 由于 Java Enum 中生效的字段不确定
-          // 所以将 enum extensions 里面的有效字段全部塞进 enumArray，交给用户自己选择
-          // 只有白名单以外的应用才走这个逻辑
-          if (!ONLY_USE_NAME_AS_ENUM_APP_LIST.includes(this.config.projectName)) {
-            if (enumDef.value !== undefined && enumDef.value !== null) {
-              enumSet.add(enumDef.value);
-            }
-            if (enumDef.code !== undefined && enumDef.code !== null) {
-              enumSet.add(enumDef.code);
-            }
-          }
-          enumSet.add(enumName);
-        },
-      );
-      enumArray = Array.from(enumSet);
-    } else {
-      // 如果没有 x-enum-fields，降级为 enum 字段
-      enumArray = schemaObject.enum;
-    }
     const enumStr = Array.from(
       new Set(
         enumArray.map((v) => (typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v))),
       ),
     ).join(' | ');
-
     return {
       type: Array.isArray(enumArray) ? enumStr : 'string',
     };
