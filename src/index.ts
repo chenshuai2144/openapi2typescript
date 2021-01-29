@@ -71,7 +71,8 @@ const converterSwaggerToOpenApi = (swagger: any) => {
     });
   });
 };
-const getSchema = async (schemaPath: string) => {
+
+export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
     const json = await fetch(schemaPath).then((rest) => rest.json());
     return json;
@@ -117,5 +118,3 @@ export const generateService = async ({
 
   process.exit();
 };
-
-export { getSchema };
