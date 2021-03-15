@@ -56,7 +56,10 @@ const resolveTypeName = (typeName: string) => {
     return `__openAPI__${typeName}`;
   }
   // XX.XXX
-  return typeName.replace(/\./g, '');
+  return typeName
+    .replace(/\./g, '')
+    .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
+    .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 };
 
 function getRefName(refObject: any): string {
