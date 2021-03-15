@@ -1,7 +1,7 @@
 import Mock from 'mockjs';
 import fs from 'fs';
 import { prettierFile } from './util';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
 
@@ -187,6 +187,12 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
   Object.keys(mockActionsObj).forEach((file) => {
     if (!file || file === 'undefined') {
       return;
+    }
+    if (file.includes('/')) {
+      const dirName = dirname(join(mockFolder, `${file}.mock.ts`));
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName);
+      }
     }
     fs.writeFileSync(join(mockFolder, `${file}.mock.ts`), genMockFiles(mockActionsObj[file]), {
       encoding: 'utf8',

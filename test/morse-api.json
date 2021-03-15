@@ -1,0 +1,237 @@
+{
+  "info": {
+    "version": "1.0.20210224155647",
+    "description": "morse_restful_api",
+    "title": "morse_product"
+  },
+  "paths": {
+    "/manager/user/addUser.json": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u7528\u6237\u540d",
+            "name": "username",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u5bc6\u7801",
+            "name": "passwd",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u90ae\u7bb1",
+            "name": "email",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u624b\u673a\u53f7",
+            "name": "mobile",
+            "in": "query"
+          }
+        ],
+        "tags": ["manager/user"],
+        "description": ":return:",
+        "summary": "\u6dfb\u52a0\u7528\u6237\u4fe1\u606f",
+        "operationId": "post_user_add"
+      }
+    },
+    "/manager/user/authorization.json": {
+      "post": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "post_user_authorization"
+      }
+    },
+    "/manager/user/delUser.json": {
+      "post": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u81ea\u589eid",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "operationId": "post_user_del"
+      }
+    },
+    "/manager/user/importUser.json": {
+      "post": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "post_user_import"
+      }
+    },
+    "/manager/user/queryAuthcodes.json": {
+      "get": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_query_authcodes"
+      }
+    },
+    "/manager/user/queryUserInfo.json": {
+      "get": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u81ea\u589e",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "operationId": "get_user_info"
+      }
+    },
+    "/manager/user/queryUsers.json": {
+      "get": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "description": "\u7528\u6237\u7c7b\u578b\uff0cadmin/operator/None",
+            "name": "user_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u5173\u952e\u8bcd",
+            "name": "key_words",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u7b2c\u51e0\u6761",
+            "name": "page_num",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u4e00\u9875\u51e0\u6761",
+            "name": "page_size",
+            "in": "query"
+          }
+        ],
+        "operationId": "get_users_query"
+      }
+    },
+    "/manager/user/randomPassword.json": {
+      "get": {
+        "tags": ["manager/user"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_random_password"
+      }
+    },
+    "/manager/user/updateUser.json": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u7528\u6237\u540d",
+            "name": "username",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "description": "\u5bc6\u7801",
+            "name": "passwd",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u90ae\u7bb1",
+            "name": "email",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "\u624b\u673a\u53f7",
+            "name": "mobile",
+            "in": "query"
+          }
+        ],
+        "tags": ["manager/user"],
+        "description": ":return:",
+        "summary": "\u7f16\u8f91\u7528\u6237\u4fe1\u606f",
+        "operationId": "post_userupdate"
+      }
+    }
+  },
+  "responses": {
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    },
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    }
+  },
+  "tags": [
+    {
+      "name": "manager/user",
+      "description": "\u7528\u6237\u6a21\u5757"
+    }
+  ],
+  "basePath": "/",
+  "produces": ["application/json"],
+  "swagger": "2.0",
+  "consumes": ["application/json"]
+}

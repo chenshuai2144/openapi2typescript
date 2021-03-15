@@ -83,6 +83,7 @@ export const getSchema = async (schemaPath: string) => {
 
 const getOpenAPIConfig = async (schemaPath: string) => {
   const schema = await getSchema(schemaPath);
+  console.log(schema);
   const openAPI = await converterSwaggerToOpenApi(schema);
   if (!schema) {
     return null;

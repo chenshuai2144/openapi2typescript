@@ -241,7 +241,11 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        (operationObject.tags || [p.replace('/', '').split('/')[1]]).forEach((tag) => {
+        (operationObject.tags || [p.replace('/', '').split('/')[1]]).forEach((tagString) => {
+          let tag = tagString;
+          if (tagString.includes('/')) {
+            tag = tagString.replace('/', '');
+          }
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
           }
