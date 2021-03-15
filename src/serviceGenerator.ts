@@ -17,7 +17,7 @@ import type {
 import { flatten, uniqBy } from 'lodash';
 import ReservedDict from 'reserved-words';
 import { join } from 'path';
-import pinyin from 'pinyin';
+import pinyin from 'tiny-pinyin';
 import Log from './log';
 
 import { writeFile, stripDot } from './util';
@@ -56,16 +56,14 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-
   const name = typeName
-    .replace(/\./g, '')
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
-  if (!/^[\u3220-\uFA29]+$/.test(name)) {
+  if (/^[\u3220-\uFA29]+$/.test(name)) {
     return name;
   }
-  return pinyin(name, { style: pinyin.STYLE_FIRST_LETTER }).join('').toUpperCase();
+  return pinyin.convertToPinyin(name, '', true);
 };
 
 function getRefName(refObject: any): string {
