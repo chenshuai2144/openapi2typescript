@@ -55,7 +55,8 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  return typeName;
+  // XX.XXX
+  return typeName.replace(/\./g, '');
 };
 
 function getRefName(refObject: any): string {
@@ -241,10 +242,17 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        (operationObject.tags || [p.replace('/', '').split('/')[1]]).forEach((tagString) => {
+        const tags = operationObject.operationId
+          ? [operationObject.operationId]
+          : operationObject.tags || [p.replace('/', '').split('/')[1]];
+
+        tags.forEach((tagString) => {
           let tag = tagString;
           if (tagString.includes('/')) {
             tag = tagString.replace('/', '');
+          }
+          if (tagString.includes('-')) {
+            tag = tagString.replace('-', '');
           }
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
@@ -459,7 +467,6 @@ class ServiceGenerator {
             controllerName: fileName,
           });
         }
-
         return {
           genType: 'ts',
           className: fileName,
@@ -622,7 +629,6 @@ class ServiceGenerator {
       nunjucks.configure({
         autoescape: false,
       });
-
       return writeFile(this.finalPath, fileName, nunjucks.renderString(template, params));
     } catch (error) {
       // eslint-disable-next-line no-console
