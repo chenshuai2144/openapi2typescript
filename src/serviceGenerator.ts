@@ -17,6 +17,7 @@ import type {
 import { flatten, uniqBy } from 'lodash';
 import ReservedDict from 'reserved-words';
 import { join } from 'path';
+import pinyin from 'pinyin';
 import Log from './log';
 
 import { writeFile, stripDot } from './util';
@@ -55,11 +56,16 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  // XX.XXX
-  return typeName
+
+  const name = typeName
     .replace(/\./g, '')
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
+
+  if (!/^[\u3220-\uFA29]+$/.test(name)) {
+    return name;
+  }
+  return pinyin(name, { style: pinyin.STYLE_FIRST_LETTER }).join('').toUpperCase();
 };
 
 function getRefName(refObject: any): string {
@@ -245,18 +251,15 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        const tags = operationObject.operationId
-          ? [operationObject.operationId]
-          : operationObject.tags || [p.replace('/', '').split('/')[1]];
+        const tags = pathItem['x-swagger-router-controller']
+          ? [pathItem['x-swagger-router-controller']]
+          : operationObject.tags || [operationObject.operationId] || [
+              p.replace('/', '').split('/')[1],
+            ];
 
         tags.forEach((tagString) => {
-          let tag = tagString;
-          if (tagString.includes('/')) {
-            tag = tagString.replace('/', '');
-          }
-          if (tagString.includes('-')) {
-            tag = tagString.replace('-', '');
-          }
+          const tag = resolveTypeName(tagString);
+
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
           }
