@@ -163,11 +163,14 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     Object.keys(pathConfig).forEach((method) => {
       const methodConfig = pathConfig[method];
       if (methodConfig) {
-        const conte =
+        const conte = (
+          methodConfig.operationId ||
           methodConfig?.tags?.join('/') ||
-          path.replace('/', '').split('/')[1] ||
-          methodConfig.operationId;
-
+          path.replace('/', '').split('/')[1]
+        )?.replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
+        if (!conte) {
+          return;
+        }
         const data = genMockData(methodConfig.responses?.['200']?.example);
         if (!mockActionsObj[conte]) {
           mockActionsObj[conte] = [];

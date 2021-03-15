@@ -1,11 +1,11 @@
 const openAPI = require('../dist/index');
 
 const gen = async () => {
-  // await openAPI.generateService({
-  //   schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
-  //   serversPath: './servers',
-  //   mockFolder: './mocks',
-  // });
+  await openAPI.generateService({
+    schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
+    serversPath: './servers',
+    mockFolder: './mocks',
+  });
   // await openAPI.generateService({
   //   schemaPath: 'http://petstore.swagger.io/v2/swagger.json',
   //   serversPath: './servers',
@@ -31,10 +31,10 @@ const gen = async () => {
   //   serversPath: './servers',
   //   mockFolder: './mocks',
   // });
-  await openAPI.generateService({
-    schemaPath: `${__dirname}/java-api.json`,
-    serversPath: './servers',
-    mockFolder: './mocks',
-  });
+  // await openAPI.generateService({
+  //   schemaPath: `${__dirname}/java-api.json`,
+  //   serversPath: './servers',
+  //   mockFolder: './mocks',
+  // });
 };
 gen();

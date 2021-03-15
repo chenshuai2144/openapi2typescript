@@ -115,6 +115,4 @@ export const generateService = async ({
       mockFolder: mockFolder || './mocks/',
     });
   }
-
-  process.exit();
 };
