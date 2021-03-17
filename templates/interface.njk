@@ -4,7 +4,7 @@
 declare namespace {{ namespace }} {
   {% for type in list -%}
 {%- if type.props.length %}
-  type {{ type.typeName | safe }}{{ '' if type.parent === undefined else ' extends ' + type.parent }} = {
+  type {{ type.typeName | safe }} = {{ '' if type.parent === undefined else type.parent + ' & '  }} {
     {%- for prop in type.props %}
     {%- if prop.desc %}
     /** {{ prop.desc }} */
