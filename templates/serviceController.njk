@@ -152,9 +152,6 @@ files
     data: body,
     {%- endif %}
     {%- endif %}
-    {%- if api.response.responseType %}
-    responseType: '{{ api.response.responseType | safe }}',
-    {%- endif %}
     ...(options || {}),
   });
 }

@@ -542,17 +542,8 @@ class ServiceGenerator {
       return defaultResponse;
     }
     const schema = resContent[mediaType].schema || DEFAULT_SCHEMA;
-
-    let responseType = mediaType;
-    if (mediaType === 'application/json') {
-      responseType = '';
-    } else if (mediaType === 'text/plain') {
-      responseType = 'text';
-    }
-
     return {
       mediaType,
-      responseType,
       type: getType(schema, this.config.namespace),
     };
   }
