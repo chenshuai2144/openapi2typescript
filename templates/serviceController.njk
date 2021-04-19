@@ -82,7 +82,7 @@ files
 ) {
   {% if api.params and api.params.path -%}
   const { {% for param in api.params.path %}'{{ param.name }}': {{ param.alias }}, {% endfor %}
-  {% if api.params.query -%}
+  {% if api.params.path -%}
   ...queryParams
   {% endif -%}
   } = params;
@@ -132,11 +132,11 @@ files
           '{{query.name | safe}}': '{{query.schema.default | safe}}',
         {%- endif -%}
       {%- endfor -%}
-      ...{{ 'queryParams' if api.params and api.params.path and api.params.query else 'params' }},
+      ...{{ 'queryParams' if api.params and api.params.path else 'params' }},
       {%- for query in api.params.query %}
         {%- if query.isComplexType %}
           '{{query.name | safe}}': undefined,
-          ...{{ 'queryParams' if api.params and api.params.path and api.params.query else 'params' }}['{{query.name | safe}}'],
+          ...{{ 'queryParams' if api.params and api.params.path else 'params' }}['{{query.name | safe}}'],
         {%- endif %}
       {%- endfor -%}
     },
