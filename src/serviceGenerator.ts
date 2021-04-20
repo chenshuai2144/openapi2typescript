@@ -326,6 +326,8 @@ class ServiceGenerator {
     Log(`✅ 成功生成 service 文件`);
   }
 
+  public concatOrNull = (...arrays) => {let c = [].concat(...arrays.filter(Array.isArray)); return c.length > 0 ? c : null};
+
   public getServiceTP() {
     return Object.keys(this.apiData)
       .map((tag) => {
@@ -341,9 +343,14 @@ class ServiceGenerator {
             const newApi = api;
             try {
               const allParams = this.getParamsTP(newApi.parameters);
-              const { file, ...params } = allParams || {};
               const body = this.getBodyTP(newApi.requestBody);
               const response = this.getResponseTP(newApi.responses);
+
+              let { file, ...params } = allParams || {};  // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
+              const newfile = this.getFileTP(newApi.requestBody);
+              file = this.concatOrNull(file, newfile);
+              //const file = this.getFileTP(newApi.requestBody);
+
               let formData = false;
               if ((body && (body.mediaType || '').includes('form')) || file) {
                 formData = true;
@@ -525,6 +532,24 @@ class ServiceGenerator {
       type: getType(schema, this.config.namespace),
     };
   }
+  public getFileTP(requestBody: any = {}) {
+    if (requestBody && requestBody.content && requestBody.content['multipart/form-data']) {
+        let ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema)
+        return ret.length > 0 ? ret : null;
+    }
+    return null;
+  }
+  public resolveFileTP(obj: any) {
+      let ret = [];
+      let resolved = this.resolveObject(obj, true)
+      let props = (resolved.props && resolved.props.filter(p => p.format === 'binary' || p.format === 'base64')) || [];
+      if (props.length > 0) {
+          ret = props.map(p => { return { title: p.name } });
+      }
+      if (resolved.type)
+          ret = [...ret, ...this.resolveFileTP(resolved.type)]
+      return ret;
+  }
 
   public getResponseTP(responses: ResponsesObject = {}) {
     const response: ResponseObject | undefined =
@@ -556,7 +581,7 @@ class ServiceGenerator {
     }
 
     const templateParams: Record<string, ParameterObject[]> = {};
-    ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => {
+    ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => { //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
       const params = parameters
         .map((p) => this.resolveRefObject(p))
         .filter((p: ParameterObject) => p.in === source)
@@ -655,7 +680,7 @@ class ServiceGenerator {
       : [];
   }
 
-  resolveObject(schemaObject: SchemaObject) {
+  resolveObject(schemaObject: SchemaObject, expandParent: boolean = false) {
     // 引用类型
     if (schemaObject.$ref) {
       return this.resolveRefObject(schemaObject);
@@ -666,7 +691,7 @@ class ServiceGenerator {
     }
     // 继承类型
     if (schemaObject.allOf && schemaObject.allOf.length) {
-      return this.resolveAllOfObject(schemaObject);
+      return !expandParent ? this.resolveAllOfObject(schemaObject) : this.resolveAllOfObjectExpandParent(schemaObject);
     }
     // 对象类型
     if (schemaObject.properties) {
@@ -721,6 +746,22 @@ class ServiceGenerator {
       parent,
       // 属性合并: 根据属性名进行去重
       props: uniqBy(props, 'name'),
+    };
+  }
+
+  resolveAllOfObjectExpandParent(schemaObject: SchemaObject) {
+    const allOf = schemaObject.allOf || [];
+    // 暂时只支持单继承，且父类必须是第一个元素
+    let props: any[] = [];
+    if (allOf.length > 0) {
+      props = flatten(allOf.map((item) => {
+        let resolved = this.resolveObject(item);
+        return resolved.props ? resolved.props : this.getProps(resolved);
+      }));
+    }
+    return {
+      // 属性合并: 根据属性名进行去重
+      props: uniqBy(props.reverse(), 'name').reverse(),
     };
   }
 
