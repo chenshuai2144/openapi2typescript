@@ -471,9 +471,13 @@ class ServiceGenerator {
             controllerName: fileName,
           });
         }
+        let className = fileName;
+        if(this.config.hook && this.config.hook.customClassName) {
+          className = this.config.hook.customClassName(tag)
+        }
         return {
           genType: 'ts',
-          className: fileName,
+          className,
           instanceName: `${fileName[0].toLowerCase()}${fileName.substr(1)}`,
           list: genParams,
         };
