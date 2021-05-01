@@ -218,6 +218,17 @@ const DEFAULT_SCHEMA: SchemaObject = {
   properties: { id: { type: 'number' } },
 };
 
+const DEFAULT_PATH_PARAM: ParameterObject = {
+  in: 'path',
+  name: null,
+  schema: {
+      type: 'string',
+  },
+  required: true,
+  isObject: false,
+  type: 'string',
+};
+
 class ServiceGenerator {
   protected apiData: TagAPIDataType = {};
 
@@ -342,7 +353,7 @@ class ServiceGenerator {
           .map((api) => {
             const newApi = api;
             try {
-              const allParams = this.getParamsTP(newApi.parameters);
+              const allParams = this.getParamsTP(newApi.parameters, newApi.path);
               const body = this.getBodyTP(newApi.requestBody);
               const response = this.getResponseTP(newApi.responses);
 
@@ -579,35 +590,50 @@ class ServiceGenerator {
 
   public getParamsTP(
     parameters: (ParameterObject | ReferenceObject)[] = [],
+    path: string = null,
   ): Record<string, ParameterObject[]> {
-    if (!parameters || !parameters.length) {
-      return {};
-    }
 
     const templateParams: Record<string, ParameterObject[]> = {};
-    ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => { //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
-      const params = parameters
-        .map((p) => this.resolveRefObject(p))
-        .filter((p: ParameterObject) => p.in === source)
-        .map((p) => {
-          const isDirectObject = ((p.schema || {}).type || p.type) === 'object';
-          const refList = ((p.schema || {}).$ref || p.$ref || '').split('/');
-          const ref = refList[refList.length - 1];
-          const deRefObj = (Object.entries(this.openAPIData.components.schemas || {}).find(
-            ([k]) => k === ref,
-          ) || []) as any;
-          const isRefObject = (deRefObj[1] || {}).type === 'object';
-          return {
-            ...p,
-            isObject: isDirectObject || isRefObject,
-            type: getType(p.schema || DEFAULT_SCHEMA, this.config.namespace),
-          };
-        });
 
-      if (params.length) {
-        templateParams[source] = params;
+    if (parameters && parameters.length) {
+      ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => { //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
+        const params = parameters
+          .map((p) => this.resolveRefObject(p))
+          .filter((p: ParameterObject) => p.in === source)
+          .map((p) => {
+            const isDirectObject = ((p.schema || {}).type || p.type) === 'object';
+            const refList = ((p.schema || {}).$ref || p.$ref || '').split('/');
+            const ref = refList[refList.length - 1];
+            const deRefObj = (Object.entries(this.openAPIData.components.schemas || {}).find(
+              ([k]) => k === ref,
+            ) || []) as any;
+            const isRefObject = (deRefObj[1] || {}).type === 'object';
+            return {
+              ...p,
+              isObject: isDirectObject || isRefObject,
+              type: getType(p.schema || DEFAULT_SCHEMA, this.config.namespace),
+            };
+          });
+
+        if (params.length) {
+          templateParams[source] = params;
+        }
+      });
+    }
+
+    if (path && path.length > 0) {
+      var regex = /\{(\w+)\}/g;
+      templateParams['path'] = templateParams['path'] || [];
+      let match = null;
+      while (match = regex.exec(path)) {
+        if (!templateParams['path'].some(p => p.name === match[1])) {
+          templateParams['path'].push({
+            ...DEFAULT_PATH_PARAM,
+            name: match[1]
+          })
+        }
       }
-    });
+    }
 
     return templateParams;
   }
