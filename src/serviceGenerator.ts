@@ -633,6 +633,9 @@ class ServiceGenerator {
           })
         }
       }
+
+      // 如果 path 没有内容，则将删除 path 参数，避免影响后续的 hasParams 判断
+      !templateParams['path'].length && (delete templateParams['path']);
     }
 
     return templateParams;
