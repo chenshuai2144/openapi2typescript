@@ -56,11 +56,14 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  const name = typeName
+  const typeLastName = typeName.split('/').pop()
+      .split('.').pop()
+
+  const name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
-  if (/^[\u3220-\uFA29]+$/.test(name)) {
+  if (! /^[\u3220-\uFA29]+$/.test(name)) {
     return name;
   }
   return pinyin.convertToPinyin(name, '', true);
