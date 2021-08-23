@@ -266,10 +266,17 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        const tags = pathItem['x-swagger-router-controller']
-          ? [pathItem['x-swagger-router-controller']]
-          : operationObject.tags || [operationObject.operationId] || [
-              p.replace('/', '').split('/')[1],
+        
+        // const tags = pathItem['x-swagger-router-controller']
+        //   ? [pathItem['x-swagger-router-controller']]
+        //   : operationObject.tags || [operationObject.operationId] || [
+        //       p.replace('/', '').split('/')[1],
+        //     ];
+
+        const tags = operationObject['x-swagger-router-controller'] 
+            ? [operationObject['x-swagger-router-controller']] 
+            : operationObject.tags || [operationObject.operationId] || [ 
+              p.replace('/', '').split('/')[1], 
             ];
 
         tags.forEach((tagString) => {
