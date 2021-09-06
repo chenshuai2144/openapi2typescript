@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
-    "start": "tsc -w"
+    "start": "tsc -w",
+    "runTest": "rm -rf ./test/servers/ &&  npm run build && cd ./test && node ./test.js && cd .."
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
