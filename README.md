@@ -1,1 +1,35 @@
-如果你看不懂里面的代码，就不要用这个工具
+## 介绍
+根据 [OpenApi3](https://swagger.io/blog/news/whats-new-in-openapi-3-0/) 文档生成 request 请求代码。
+
+如果你使用 [umi](https://umijs.org) ,你可以使用[@umijs/plugin-openapi](https://www.npmjs.com/package/@umijs/plugin-openapi) 插件。
+## 使用
+```node
+npm i --save-dev @umijs/openapi
+```
+在项目根目录新建 ```openapi.config.ts```
+```ts
+const { generateService } = require('@umijs/openapi')
+
+generateService({
+  schemaPath: 'http://petstore.swagger.io/v2/swagger.json',
+  serversPath: './servers',
+})
+
+```
+在 ```package.json``` 的 ```script``` 中添加 api: ```"openapi": "ts-node openapi.config.ts",```
+
+生成api
+```node
+npm run openapi
+```
+## 参数
+|  属性   | 必填  | 备注 | 类型 |
+|  ----  | ----  |  ----  |  ----  |
+| requestLibPath  | 否 | 自定义请求方法路径 | string |
+| requestImportStatement  | 否 | 自定义请求方法表达式 | string |
+| apiPrefix  | 否 | api 的前缀 | string |
+| serversPath  | 否 | 生成的文件夹的路径 | string |
+| schemaPath  | 否 | openAPI 3.0 的地址 | string |
+| projectName  | 否 | 项目名称 | string |
+| namespace  | 否 | 命名空间名称 | string |
+| mockFolder  | 否 | mock目录 | string |
