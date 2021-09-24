@@ -63,7 +63,6 @@ const resolveTypeName = (typeName: string) => {
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
-
   if (! /[\u3220-\uFA29]/.test(name)) {
     return name;
   }
@@ -830,15 +829,15 @@ class ServiceGenerator {
         .replace(pathBasePrefix, '')
         .split('/')
         .map((str) => {
-          if (str.includes('-')) {
-            // eslint-disable-next-line no-param-reassign
-            str = str.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase() );
+          let s = str
+          if (s.includes('-')) {
+            s = s.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase() );
           }
 
-          if (str.match(/^{.+}$/gim)) {
-            return `By${toUpperFirstLetter(str.slice(1, str.length - 1))}`;
+          if (s.match(/^{.+}$/gim)) {
+            return `By${toUpperFirstLetter(s.slice(1, s.length - 1))}`;
           }
-          return toUpperFirstLetter(str);
+          return toUpperFirstLetter(s);
         })
         .join('');
   }
