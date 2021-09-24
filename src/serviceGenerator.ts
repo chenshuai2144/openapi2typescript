@@ -63,9 +63,11 @@ const resolveTypeName = (typeName: string) => {
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
-  if (! /^[\u3220-\uFA29]+$/.test(name)) {
+
+  if (! /[\u3220-\uFA29]/.test(name)) {
     return name;
   }
+
   return pinyin.convertToPinyin(name, '', true);
 };
 
@@ -353,11 +355,14 @@ class ServiceGenerator {
   public concatOrNull = (...arrays) => {let c = [].concat(...arrays.filter(Array.isArray)); return c.length > 0 ? c : null};
 
   public getServiceTP() {
+    // 获取路径相同部分
+    const pathBasePrefix = this.getBasePrefix(Object.keys(this.openAPIData.paths));
+
     return Object.keys(this.apiData)
       .map((tag) => {
-        // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
         const genParams = this.apiData[tag]
+
           .filter(
             (api) =>
               // 暂不支持变量
@@ -383,7 +388,9 @@ class ServiceGenerator {
               let functionName =
                 this.config.hook && this.config.hook.customFunctionName
                   ? this.config.hook.customFunctionName(newApi)
-                  : this.resolveFunctionName(stripDot(newApi.operationId), newApi.method);
+                  : newApi.operationId
+                  ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
+                  :  newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
 
               if (functionName && tmpFunctionRD[functionName]) {
                 functionName = `${functionName}_${(tmpFunctionRD[functionName] += 1)}`;
@@ -809,6 +816,52 @@ class ServiceGenerator {
       // 属性合并: 根据属性名进行去重
       props: uniqBy(props.reverse(), 'name').reverse(),
     };
+  }
+
+  // 将地址path路径转为大驼峰
+  private genDefaultFunctionName(path: string, pathBasePrefix: string) {
+
+    // 首字母转大写
+    function toUpperFirstLetter(text: string) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    return path
+        .replace(pathBasePrefix, '')
+        .split('/')
+        .map((str) => {
+          if (str.includes('-')) {
+            // eslint-disable-next-line no-param-reassign
+            str = str.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase() );
+          }
+
+          if (str.match(/^{.+}$/gim)) {
+            return `By${toUpperFirstLetter(str.slice(1, str.length - 1))}`;
+          }
+          return toUpperFirstLetter(str);
+        })
+        .join('');
+  }
+  // 检测所有path重复区域（prefix）
+  private getBasePrefix(paths: string[]) {
+    const arr = []
+    paths
+      .map(item => item.split('/') )
+      .forEach((pathItem) =>{
+        pathItem.forEach((item, key) => {
+          if (arr.length <= key){
+            arr[key] = []
+          }
+          arr[key].push(item)
+        })
+    })
+
+    const res = arr
+        .map(item => Array.from(new Set(item)))
+        .filter(item => item.length === 1)
+        .join('/')
+
+    return `${res}/`
   }
 
   private resolveRefObject(refObject: any): any {
