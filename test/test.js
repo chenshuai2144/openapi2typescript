@@ -2,7 +2,7 @@ const openAPI = require('../dist/index');
 
 const gen = async () => {
   await openAPI.generateService({
-    schemaPath: `http://psp.wangritian.com/swagger/swagger.json`,
+    schemaPath: `http://82.157.33.9/swagger/swagger.json`,
     serversPath: './servers',
   });
   // await openAPI.generateService({

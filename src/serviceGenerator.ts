@@ -681,6 +681,41 @@ class ServiceGenerator {
         });
       });
 
+      // 强行替换掉请求参数params的类型，生成方法对应的 xxxxParams 类型
+      Object.keys(this.openAPIData.paths || {}).forEach((p) => {
+        const pathItem: PathItemObject = this.openAPIData.paths[p];
+        ['get', 'put', 'post', 'delete', 'patch'].forEach((method) => {
+            const operationObject: OperationObject = pathItem[method];
+            if (!operationObject) {
+                return;
+            }
+
+            const props = []
+            if (operationObject.parameters) {
+              operationObject.parameters.forEach((parameter: any)=>{
+                props.push({
+                  desc: parameter.description ?? '',
+                  name: parameter.name,
+                  required: parameter,
+                  type: getType(parameter.schema),
+                });
+              });
+            }
+            let namespace = '';
+            if(this.config.namespace) {
+              namespace = `${this.config.namespace}.`
+            }
+
+            data.push([{
+                typeName: resolveTypeName(`${namespace}${operationObject.operationId}Params`),
+                type: 'Record<string, any>',
+                parent: undefined,
+                props,
+            }])
+        })
+      });
+      // ---- 生成 xxxparams 类型 end---------
+
     return data && data.reduce((p, c) => p && c && p.concat(c), []);
   }
 
