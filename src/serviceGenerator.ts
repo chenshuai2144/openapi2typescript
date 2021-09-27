@@ -164,7 +164,7 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
     return schemaObject.oneOf.map((item) => getType(item, namespace)).join(' | ');
   }
   if(schemaObject.allOf && schemaObject.allOf.length){
-    return schemaObject.allOf.map((item) => getType(item, namespace)).join(' & ');
+    return `(${schemaObject.allOf.map((item) => getType(item, namespace)).join(' & ')})`;
   }
   if (schemaObject.type === 'object' || schemaObject.properties) {
     if (!Object.keys(schemaObject.properties || {}).length) {
