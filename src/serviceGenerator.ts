@@ -690,13 +690,14 @@ class ServiceGenerator {
                 return;
             }
 
+
             const props = []
             if (operationObject.parameters) {
               operationObject.parameters.forEach((parameter: any)=>{
                 props.push({
                   desc: parameter.description ?? '',
                   name: parameter.name,
-                  required: parameter,
+                  required: parameter.required,
                   type: getType(parameter.schema),
                 });
               });
