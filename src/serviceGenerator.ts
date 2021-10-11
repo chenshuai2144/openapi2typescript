@@ -855,12 +855,17 @@ class ServiceGenerator {
         })
     })
 
-    const res = arr
-        .map(item => Array.from(new Set(item)))
-        .filter(item => item.length === 1)
-        .join('/')
+    const res = []
+    arr.map(item => Array.from(new Set(item)))
+        .every(item => {
+          const b = item.length === 1
+          if (b){
+            res.push(item)
+          }
+          return b
+        })
 
-    return `${res}/`
+    return `${res.join('/')}/`
   }
 
   private resolveRefObject(refObject: any): any {
