@@ -14,7 +14,6 @@ import type {
   OperationObject,
   PathItemObject,
 } from 'openapi3-ts';
-import { flatten, uniqBy } from 'lodash';
 import ReservedDict from 'reserved-words';
 import { join } from 'path';
 import pinyin from 'tiny-pinyin';
@@ -575,7 +574,7 @@ class ServiceGenerator {
   }
   public resolveFileTP(obj: any) {
       let ret = [];
-      let resolved = this.resolveObject(obj, true)
+      let resolved = this.resolveObject(obj)
       let props = (resolved.props && resolved.props.filter(p => p.format === 'binary' || p.format === 'base64')) || [];
       if (props.length > 0) {
           ret = props.map(p => { return { title: p.name } });
@@ -732,7 +731,7 @@ class ServiceGenerator {
       : [];
   }
 
-  resolveObject(schemaObject: SchemaObject, expandParent: boolean = false) {
+  resolveObject(schemaObject: SchemaObject) {
     // 引用类型
     if (schemaObject.$ref) {
       return this.resolveRefObject(schemaObject);
@@ -743,7 +742,7 @@ class ServiceGenerator {
     }
     // 继承类型
     if (schemaObject.allOf && schemaObject.allOf.length) {
-      return !expandParent ? this.resolveAllOfObject(schemaObject) : this.resolveAllOfObjectExpandParent(schemaObject);
+      return this.resolveAllOfObject(schemaObject);
     }
     // 对象类型
     if (schemaObject.properties) {
@@ -769,7 +768,7 @@ class ServiceGenerator {
 
   resolveProperties(schemaObject: SchemaObject) {
     return {
-      props: this.getProps(schemaObject),
+      props: [this.getProps(schemaObject)],
     };
   }
 
@@ -787,34 +786,10 @@ class ServiceGenerator {
   }
 
   resolveAllOfObject(schemaObject: SchemaObject) {
-    const allOf = schemaObject.allOf || [];
-    // 暂时只支持单继承，且父类必须是第一个元素
-    const parent = allOf[0] && allOf[0].$ref ? getType(allOf[0]) : undefined;
-    let props: any[] = [];
-    if (allOf.length > 1) {
-      props = flatten(allOf.slice(1).map((item) => this.getProps(item)));
-    }
-    return {
-      parent,
-      // 属性合并: 根据属性名进行去重
-      props: uniqBy(props, 'name'),
-    };
-  }
-
-  resolveAllOfObjectExpandParent(schemaObject: SchemaObject) {
-    const allOf = schemaObject.allOf || [];
-    // 暂时只支持单继承，且父类必须是第一个元素
-    let props: any[] = [];
-    if (allOf.length > 0) {
-      props = flatten(allOf.map((item) => {
-        let resolved = this.resolveObject(item);
-        return resolved.props ? resolved.props : this.getProps(resolved);
-      }));
-    }
-    return {
-      // 属性合并: 根据属性名进行去重
-      props: uniqBy(props.reverse(), 'name').reverse(),
-    };
+    const props = (schemaObject.allOf || []).map(item =>
+        item.$ref ? [{...item, type: getType(item).split('/').pop()}] : this.getProps(item)
+    )
+    return { props }
   }
 
   // 将地址path路径转为大驼峰
