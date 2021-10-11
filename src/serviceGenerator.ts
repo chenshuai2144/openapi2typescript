@@ -547,6 +547,7 @@ class ServiceGenerator {
             schema: {
               ...schema.properties[p],
               type: getType(schema.properties[p], this.config.namespace),
+              required: schema.required.includes(p),
             },
           };
         }
@@ -600,6 +601,11 @@ class ServiceGenerator {
       return defaultResponse;
     }
     const schema = resContent[mediaType].schema || DEFAULT_SCHEMA;
+    if ("properties" in schema) {
+      Object.keys(schema.properties).map(fieldName => {
+        schema.properties[fieldName]['required'] = schema.required.includes(fieldName)
+      })
+    }
     return {
       mediaType,
       type: getType(schema, this.config.namespace),
