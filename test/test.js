@@ -2,9 +2,14 @@ const openAPI = require('../dist/index');
 
 const gen = async () => {
   await openAPI.generateService({
-    schemaPath: `http://82.157.33.9/swagger/swagger.json`,
+    schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
     serversPath: './servers',
   });
+  // await openAPI.generateService({
+  //   // requestLibPath: "import request  from '@/request';",
+  //   schemaPath: `http://82.157.33.9/swagger/swagger.json`,
+  //   serversPath: './servers',
+  // });
   // await openAPI.generateService({
   //   schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
   //   serversPath: './servers',
