@@ -1,18 +1,22 @@
-// @ts-ignore
-/* eslint-disable */
-
 declare namespace {{ namespace }} {
   {% for type in list -%}
 {%- if type.props.length %}
-  type {{ type.typeName | safe }} = {{ '' if type.parent === undefined else type.parent + ' & '  }} {
-    {%- for prop in type.props %}
-    {%- if prop.desc %}
-    /** {{ prop.desc }} */
-    {%- endif %}
-    '{{ prop.name }}'
-    {{ '' if prop.required else '?' }}: {{ prop.type | safe }};
-    {%- endfor %}
-  }
+  type {{ type.typeName | safe }} =
+  {%- for prop in type.props %}
+     {%- if prop[0].$ref !== undefined %}
+      {{ prop[0].type }}
+     {%- else %}
+     {
+     {%- for p in prop %}
+      {%- if p.desc %}
+      /** {{ p.desc }} */
+      {%- endif %}
+      '{{ p.name }}'{{ '' if p.required else '?' }}: {{ p.type | safe }};
+     {%- endfor %}
+     }
+     {%- endif %}
+    {{ '' if loop.last === true else ' & '  }}
+  {%- endfor %}
 {%- else %}
   type {{ type.typeName | safe }} = {{ type.type }};
 {%- endif %}
