@@ -718,12 +718,15 @@ class ServiceGenerator {
               namespace = `${this.config.namespace}.`
             }
 
-            data.push([{
+            if(props.length>0){
+              data.push([{
                 typeName: resolveTypeName(`${namespace}${operationObject.operationId}Params`),
                 type: 'Record<string, any>',
                 parent: undefined,
-                props,
-            }])
+                props:[props],
+              }]);
+            }
+            
         })
       });
       // ---- 生成 xxxparams 类型 end---------
