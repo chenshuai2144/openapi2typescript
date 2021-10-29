@@ -1,9 +1,10 @@
 import Mock from 'mockjs';
 import fs from 'fs';
-import { prettierFile } from './util';
-import { join, dirname } from 'path';
+import {prettierFile, writeFile} from './util';
+import {dirname, join} from 'path';
 import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
+import pinyin from "tiny-pinyin";
 
 Mock.Random.extend({
   country() {
@@ -122,21 +123,31 @@ const genMockData = (example: string) => {
     }, {});
 };
 
-const genByTemp = ({
+const genByTemp = ( {
   method,
   path,
+  parameters,
   status,
   data,
 }: {
   method: string;
   path: string;
+  parameters: { name: string, in: string, description: string, required: boolean, schema: {type: string}, example: string}[];
   status: string;
   data: string;
 }) => {
   if (!['get', 'put', 'post', 'delete', 'patch'].includes(method.toLocaleLowerCase())) {
     return '';
   }
-  return `'${method.toUpperCase()} ${path}': (req: Request, res: Response) => {
+
+  let securityPath = path
+  parameters?.forEach(item => {
+    if (item.in === "path"){
+      securityPath = securityPath.replace(`{${item.name}}`, `:${item.name}`)
+    }
+  })
+
+  return `'${method.toUpperCase()} ${securityPath}': (req: Request, res: Response) => {
     res.status(${status}).send(${data});
   }`;
 };
@@ -163,11 +174,14 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     Object.keys(pathConfig).forEach((method) => {
       const methodConfig = pathConfig[method];
       if (methodConfig) {
-        const conte = (
+        let conte = (
           methodConfig.operationId ||
           methodConfig?.tags?.join('/') ||
           path.replace('/', '').split('/')[1]
         )?.replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
+        if (/[\u3220-\uFA29]/.test(conte)) {
+          conte = pinyin.convertToPinyin(conte, '', true)
+        }
         if (!conte) {
           return;
         }
@@ -178,6 +192,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
         const tempFile = genByTemp({
           method,
           path,
+          parameters: methodConfig.parameters,
           status: '200',
           data: JSON.stringify(data),
         });
@@ -197,9 +212,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
         fs.mkdirSync(dirName);
       }
     }
-    fs.writeFileSync(join(mockFolder, `${file}.mock.ts`), genMockFiles(mockActionsObj[file]), {
-      encoding: 'utf8',
-    });
+    writeFile(mockFolder, `${file}.mock.ts`, genMockFiles(mockActionsObj[file]));
   });
   Log('✅ 生成 mock 文件成功');
 };
