@@ -13,7 +13,8 @@
     "build": "tsc",
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
     "start": "tsc -w",
-    "runTest": "rm -rf ./test/servers/ &&  npm run build && cd ./test && node ./test.js && cd .."
+    "test": "rm -rf ./test/servers/ &&  npm run build && cd ./test && node ./test.js && cd ..",
+    "localConvert4Project": "rm -rf ./test/servers/ &&  npm run build && cd ./test && node ./test.js && cd .. && rm -rf /Users/fd/wj/psp-web-pro/src/services/wj && mv ./test/servers/api/  /Users/fd/wj/psp-web-pro/src/services/wj"
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
