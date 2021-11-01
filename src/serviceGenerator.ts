@@ -547,7 +547,7 @@ class ServiceGenerator {
             schema: {
               ...schema.properties[p],
               type: getType(schema.properties[p], this.config.namespace),
-              required: schema.required.includes(p),
+              required: schema.required?.includes(p) ?? false,
             },
           };
         }
@@ -603,7 +603,7 @@ class ServiceGenerator {
     const schema = resContent[mediaType].schema || DEFAULT_SCHEMA;
     if ("properties" in schema) {
       Object.keys(schema.properties).map(fieldName => {
-        schema.properties[fieldName]['required'] = schema.required.includes(fieldName)
+        schema.properties[fieldName]['required'] = schema.required?.includes(fieldName) ?? false
       })
     }
     return {
@@ -720,7 +720,7 @@ class ServiceGenerator {
 
   // 获取 TS 类型的属性列表
   getProps(schemaObject: SchemaObject) {
-    const requiredPropKeys = schemaObject.required;
+    const requiredPropKeys = schemaObject?.required ?? false;
     return schemaObject.properties
       ? Object.keys(schemaObject.properties).map((propName) => {
           const schema: SchemaObject =

@@ -3,7 +3,7 @@ declare namespace {{ namespace }} {
 {%- if type.props.length %}
   type {{ type.typeName | safe }} =
   {%- for prop in type.props %}
-     {%- if prop[0].$ref !== undefined %}
+     {%- if (prop[0].$ref !== undefined) and (prop | length === 1) %}
       {{ prop[0].type }}
      {%- else %}
      {
