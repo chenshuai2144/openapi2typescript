@@ -1,3 +1,7 @@
+const assert = require('assert');
+const path = require('path');
+const fs = require('fs');
+
 const openAPI = require('../dist/index');
 
 const gen = async () => {
@@ -5,6 +9,17 @@ const gen = async () => {
     schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
     serversPath: './servers',
   });
+
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-file-convert.json`,
+    serversPath: './file-servers',
+  });
+
+  // check 文件生成
+  const fileControllerStr = fs.readFileSync(path.join(__dirname, 'file-servers/api/fileController.ts'), 'utf8');
+  assert(fileControllerStr.indexOf('!(item instanceof File)') > 0);
+  assert(fileControllerStr.indexOf(`requestType: 'form',`) > 0);
+  assert(fileControllerStr.indexOf('Content-Type') < 0);
   // await openAPI.generateService({
   //   // requestLibPath: "import request  from '@/request';",
   //   schemaPath: `http://82.157.33.9/swagger/swagger.json`,
