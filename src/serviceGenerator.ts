@@ -720,7 +720,7 @@ class ServiceGenerator {
 
             if(props.length>0){
               data.push([{
-                typeName: resolveTypeName(`${namespace}${operationObject.operationId}Params`),
+                typeName: resolveTypeName(`${namespace}${this.config?.hook?.customFunctionName?.(operationObject)??operationObject.operationId}Params`),
                 type: 'Record<string, any>',
                 parent: undefined,
                 props:[props],
