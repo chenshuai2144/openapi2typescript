@@ -9,20 +9,7 @@ export async function {{ api.functionName }}(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params
   {%- if genType === "ts" -%}
-  : {{namespace}}.{{api.functionName}}Params & {
-    {# query 入参 -#}
-    {% if api.params.query -%}
-    // query
-    {% for param in api.params.query -%}
-    {% if param.description -%}
-    /** {{ param.description }} */
-    {% endif -%}
-      '{{ param.name }}'
-      {{- "?" if not param.required }}
-      {{- (": " + param.type + ";") | safe }}
-    {% endfor -%}
-    {% endif -%}
-
+  : {{namespace}}.{{api.functionName}}Params
     {# header 入参 -#}
     {% if api.params.header -%}
     // header
@@ -35,20 +22,6 @@ export async function {{ api.functionName }}(
       {{- (": " + param.type + ";") | safe }}
     {% endfor -%}
     {% endif -%}
-
-    {# path 入参 -#}
-    {% if api.params.path -%}
-    // path
-    {% for param in api.params.path -%}
-    {% if param.description -%}
-    /** {{ param.description }} */
-    {% endif -%}
-      '{{ param.name }}'
-      {{- "?" if not param.required }}
-      {{- (": " + param.type + ";") | safe }}
-    {% endfor -%}
-    {% endif -%}
-  }
   {%- endif -%}
   {%- if api.hasParams %}
   {{ "," if api.body or api.file}}
