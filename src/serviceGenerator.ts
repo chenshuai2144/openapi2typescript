@@ -1,26 +1,25 @@
-import { readFileSync, existsSync } from 'fs';
-import * as nunjucks from 'nunjucks';
+import { existsSync, readFileSync } from 'fs';
 import glob from 'glob';
-import rimraf from 'rimraf';
+import * as nunjucks from 'nunjucks';
 import type {
-  OpenAPIObject,
-  SchemaObject,
-  ReferenceObject,
-  ParameterObject,
-  RequestBodyObject,
   ContentObject,
+  OpenAPIObject,
+  OperationObject,
+  ParameterObject,
+  PathItemObject,
+  ReferenceObject,
+  RequestBodyObject,
   ResponseObject,
   ResponsesObject,
-  OperationObject,
-  PathItemObject,
+  SchemaObject,
 } from 'openapi3-ts';
-import ReservedDict from 'reserved-words';
 import { join } from 'path';
+import ReservedDict from 'reserved-words';
+import rimraf from 'rimraf';
 import pinyin from 'tiny-pinyin';
-import Log from './log';
-
-import { writeFile, stripDot } from './util';
 import type { GenerateServiceProps } from './index';
+import Log from './log';
+import { stripDot, writeFile } from './util';
 
 const BASE_DIRS = ['service', 'services'];
 
@@ -55,14 +54,13 @@ const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  const typeLastName = typeName.split('/').pop()
-      .split('.').pop()
+  const typeLastName = typeName.split('/').pop().split('.').pop();
 
   const name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
-  if (! /[\u3220-\uFA29]/.test(name)) {
+  if (!/[\u3220-\uFA29]/.test(name)) {
     return name;
   }
 
@@ -162,7 +160,7 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
   if (schemaObject.oneOf && schemaObject.oneOf.length) {
     return schemaObject.oneOf.map((item) => getType(item, namespace)).join(' | ');
   }
-  if(schemaObject.allOf && schemaObject.allOf.length){
+  if (schemaObject.allOf && schemaObject.allOf.length) {
     return `(${schemaObject.allOf.map((item) => getType(item, namespace)).join(' & ')})`;
   }
   if (schemaObject.type === 'object' || schemaObject.properties) {
@@ -228,7 +226,7 @@ const DEFAULT_PATH_PARAM: ParameterObject = {
   in: 'path',
   name: null,
   schema: {
-      type: 'string',
+    type: 'string',
   },
   required: true,
   isObject: false,
@@ -266,17 +264,17 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        
+
         // const tags = pathItem['x-swagger-router-controller']
         //   ? [pathItem['x-swagger-router-controller']]
         //   : operationObject.tags || [operationObject.operationId] || [
         //       p.replace('/', '').split('/')[1],
         //     ];
 
-        const tags = operationObject['x-swagger-router-controller'] 
-            ? [operationObject['x-swagger-router-controller']] 
-            : operationObject.tags || [operationObject.operationId] || [ 
-              p.replace('/', '').split('/')[1], 
+        const tags = operationObject['x-swagger-router-controller']
+          ? [operationObject['x-swagger-router-controller']]
+          : operationObject.tags || [operationObject.operationId] || [
+              p.replace('/', '').split('/')[1],
             ];
 
         tags.forEach((tagString) => {
@@ -350,7 +348,10 @@ class ServiceGenerator {
     Log(`✅ 成功生成 service 文件`);
   }
 
-  public concatOrNull = (...arrays) => {let c = [].concat(...arrays.filter(Array.isArray)); return c.length > 0 ? c : null};
+  public concatOrNull = (...arrays) => {
+    const c = [].concat(...arrays.filter(Array.isArray));
+    return c.length > 0 ? c : null;
+  };
 
   public getServiceTP() {
     // 获取路径相同部分
@@ -373,7 +374,7 @@ class ServiceGenerator {
               const body = this.getBodyTP(newApi.requestBody);
               const response = this.getResponseTP(newApi.responses);
 
-              let { file, ...params } = allParams || {};  // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
+              let { file, ...params } = allParams || {}; // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
               const newfile = this.getFileTP(newApi.requestBody);
               file = this.concatOrNull(file, newfile);
               //const file = this.getFileTP(newApi.requestBody);
@@ -388,7 +389,7 @@ class ServiceGenerator {
                   ? this.config.hook.customFunctionName(newApi)
                   : newApi.operationId
                   ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
-                  :  newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
+                  : newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
 
               if (functionName && tmpFunctionRD[functionName]) {
                 functionName = `${functionName}_${(tmpFunctionRD[functionName] += 1)}`;
@@ -402,9 +403,8 @@ class ServiceGenerator {
               );
               if (newApi.extensions && newApi.extensions['x-antTech-description']) {
                 const { extensions } = newApi;
-                const { apiName, antTechVersion, productCode, antTechApiName } = extensions[
-                  'x-antTech-description'
-                ];
+                const { apiName, antTechVersion, productCode, antTechApiName } =
+                  extensions['x-antTech-description'];
                 formattedPath = antTechApiName || formattedPath;
                 this.mappings.push({
                   antTechApi: formattedPath,
@@ -508,8 +508,8 @@ class ServiceGenerator {
           });
         }
         let className = fileName;
-        if(this.config.hook && this.config.hook.customClassName) {
-          className = this.config.hook.customClassName(tag)
+        if (this.config.hook && this.config.hook.customClassName) {
+          className = this.config.hook.customClassName(tag);
         }
         return {
           genType: 'ts',
@@ -568,21 +568,25 @@ class ServiceGenerator {
   }
   public getFileTP(requestBody: any = {}) {
     if (requestBody && requestBody.content && requestBody.content['multipart/form-data']) {
-        let ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema)
-        return ret.length > 0 ? ret : null;
+      const ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema);
+      return ret.length > 0 ? ret : null;
     }
     return null;
   }
   public resolveFileTP(obj: any) {
-      let ret = [];
-      let resolved = this.resolveObject(obj)
-      let props = (resolved.props && resolved.props.filter(p => p.format === 'binary' || p.format === 'base64')) || [];
-      if (props.length > 0) {
-          ret = props.map(p => { return { title: p.name } });
-      }
-      if (resolved.type)
-          ret = [...ret, ...this.resolveFileTP(resolved.type)]
-      return ret;
+    let ret = [];
+    const resolved = this.resolveObject(obj);
+    const props =
+      (resolved.props &&
+        resolved.props.filter((p) => p.format === 'binary' || p.format === 'base64')) ||
+      [];
+    if (props.length > 0) {
+      ret = props.map((p) => {
+        return { title: p.name };
+      });
+    }
+    if (resolved.type) ret = [...ret, ...this.resolveFileTP(resolved.type)];
+    return ret;
   }
 
   public getResponseTP(responses: ResponsesObject = {}) {
@@ -601,10 +605,11 @@ class ServiceGenerator {
       return defaultResponse;
     }
     const schema = resContent[mediaType].schema || DEFAULT_SCHEMA;
-    if ("properties" in schema) {
-      Object.keys(schema.properties).map(fieldName => {
-        schema.properties[fieldName]['required'] = schema.required?.includes(fieldName) ?? false
-      })
+    if ('properties' in schema) {
+      Object.keys(schema.properties).map((fieldName) => {
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        schema.properties[fieldName]['required'] = schema.required?.includes(fieldName) ?? false;
+      });
     }
     return {
       mediaType,
@@ -616,11 +621,11 @@ class ServiceGenerator {
     parameters: (ParameterObject | ReferenceObject)[] = [],
     path: string = null,
   ): Record<string, ParameterObject[]> {
-
     const templateParams: Record<string, ParameterObject[]> = {};
 
     if (parameters && parameters.length) {
-      ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => { //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
+      ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => {
+        //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
         const params = parameters
           .map((p) => this.resolveRefObject(p))
           .filter((p: ParameterObject) => p.in === source)
@@ -646,20 +651,20 @@ class ServiceGenerator {
     }
 
     if (path && path.length > 0) {
-      var regex = /\{(\w+)\}/g;
-      templateParams['path'] = templateParams['path'] || [];
+      const regex = /\{(\w+)\}/g;
+      templateParams.path = templateParams.path || [];
       let match = null;
-      while (match = regex.exec(path)) {
-        if (!templateParams['path'].some(p => p.name === match[1])) {
-          templateParams['path'].push({
+      while ((match = regex.exec(path))) {
+        if (!templateParams.path.some((p) => p.name === match[1])) {
+          templateParams.path.push({
             ...DEFAULT_PATH_PARAM,
-            name: match[1]
-          })
+            name: match[1],
+          });
         }
       }
 
       // 如果 path 没有内容，则将删除 path 参数，避免影响后续的 hasParams 判断
-      !templateParams['path'].length && (delete templateParams['path']);
+      if (!templateParams.path.length) delete templateParams.path;
     }
 
     return templateParams;
@@ -692,44 +697,60 @@ class ServiceGenerator {
         });
       });
 
-      // 强行替换掉请求参数params的类型，生成方法对应的 xxxxParams 类型
-      Object.keys(this.openAPIData.paths || {}).forEach((p) => {
-        const pathItem: PathItemObject = this.openAPIData.paths[p];
-        ['get', 'put', 'post', 'delete', 'patch'].forEach((method) => {
-            const operationObject: OperationObject = pathItem[method];
-            if (!operationObject) {
-                return;
-            }
+    // 强行替换掉请求参数params的类型，生成方法对应的 xxxxParams 类型
+    Object.keys(this.openAPIData.paths || {}).forEach((p) => {
+      const pathItem: PathItemObject = this.openAPIData.paths[p];
+      ['get', 'put', 'post', 'delete', 'patch'].forEach((method) => {
+        const operationObject: OperationObject = pathItem[method];
+        if (!operationObject) {
+          return;
+        }
 
+        const props = [];
+        if (operationObject.parameters) {
+          operationObject.parameters.forEach((parameter: any) => {
+            props.push({
+              desc: parameter.description ?? '',
+              name: parameter.name,
+              required: parameter.required,
+              type: getType(parameter.schema),
+            });
+          });
+        }
+        // parameters may be in path
+        if (pathItem.parameters) {
+          pathItem.parameters.forEach((parameter: any) => {
+            props.push({
+              desc: parameter.description ?? '',
+              name: parameter.name,
+              required: parameter.required,
+              type: getType(parameter.schema),
+            });
+          });
+        }
+        let namespace = '';
+        if (this.config.namespace) {
+          namespace = `${this.config.namespace}.`;
+        }
 
-            const props = []
-            if (operationObject.parameters) {
-              operationObject.parameters.forEach((parameter: any)=>{
-                props.push({
-                  desc: parameter.description ?? '',
-                  name: parameter.name,
-                  required: parameter.required,
-                  type: getType(parameter.schema),
-                });
-              });
-            }
-            let namespace = '';
-            if(this.config.namespace) {
-              namespace = `${this.config.namespace}.`
-            }
-
-            if(props.length>0){
-              data.push([{
-                typeName: resolveTypeName(`${namespace}${this.config?.hook?.customFunctionName?.(operationObject)??operationObject.operationId}Params`),
-                type: 'Record<string, any>',
-                parent: undefined,
-                props:[props],
-              }]);
-            }
-            
-        })
+        if (props.length > 0) {
+          data.push([
+            {
+              typeName: resolveTypeName(
+                `${namespace}${
+                  this.config?.hook?.customFunctionName?.(operationObject) ??
+                  operationObject.operationId
+                }Params`,
+              ),
+              type: 'Record<string, any>',
+              parent: undefined,
+              props: [props],
+            },
+          ]);
+        }
       });
-      // ---- 生成 xxxparams 类型 end---------
+    });
+    // ---- 生成 xxxparams 类型 end---------
 
     return data && data.reduce((p, c) => p && c && p.concat(c), []);
   }
@@ -831,61 +852,61 @@ class ServiceGenerator {
   }
 
   resolveAllOfObject(schemaObject: SchemaObject) {
-    const props = (schemaObject.allOf || []).map(item =>
-        item.$ref ? [{...item, type: getType(item).split('/').pop()}] : this.getProps(item)
-    )
-    return { props }
+    const props = (schemaObject.allOf || []).map((item) =>
+      item.$ref ? [{ ...item, type: getType(item).split('/').pop() }] : this.getProps(item),
+    );
+    return { props };
   }
 
   // 将地址path路径转为大驼峰
   private genDefaultFunctionName(path: string, pathBasePrefix: string) {
-
     // 首字母转大写
     function toUpperFirstLetter(text: string) {
       return text.charAt(0).toUpperCase() + text.slice(1);
     }
 
     return path
-        .replace(pathBasePrefix, '')
-        .split('/')
-        .map((str) => {
-          let s = str
-          if (s.includes('-')) {
-            s = s.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase() );
-          }
+      .replace(pathBasePrefix, '')
+      .split('/')
+      .map((str) => {
+        let s = str;
+        if (s.includes('-')) {
+          s = s.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase());
+        }
 
-          if (s.match(/^{.+}$/gim)) {
-            return `By${toUpperFirstLetter(s.slice(1, s.length - 1))}`;
-          }
-          return toUpperFirstLetter(s);
-        })
-        .join('');
+        if (s.match(/^{.+}$/gim)) {
+          return `By${toUpperFirstLetter(s.slice(1, s.length - 1))}`;
+        }
+        return toUpperFirstLetter(s);
+      })
+      .join('');
   }
   // 检测所有path重复区域（prefix）
   private getBasePrefix(paths: string[]) {
-    const arr = []
+    const arr = [];
     paths
-      .map(item => item.split('/') )
-      .forEach((pathItem) =>{
+      .map((item) => item.split('/'))
+      .forEach((pathItem) => {
         pathItem.forEach((item, key) => {
-          if (arr.length <= key){
-            arr[key] = []
+          if (arr.length <= key) {
+            arr[key] = [];
           }
-          arr[key].push(item)
-        })
-    })
+          arr[key].push(item);
+        });
+      });
 
-    const res = []
-    arr.map(item => Array.from(new Set(item)))
-        .every(item => {
-          const b = item.length === 1
-          if (b){
-            res.push(item)
-          }
-          return b
-        })
+    const res = [];
+    arr
+      .map((item) => Array.from(new Set(item)))
+      .every((item) => {
+        const b = item.length === 1;
+        if (b) {
+          res.push(item);
+        }
+        return b;
+      });
 
-    return `${res.join('/')}/`
+    return `${res.join('/')}/`;
   }
 
   private resolveRefObject(refObject: any): any {
