@@ -12,7 +12,7 @@ export async function {{ api.functionName }}(
   : {{namespace}}.{{api.functionName}}Params
     {# header 入参 -#}
     {% if api.params.header -%}
-    // header
+    & { // header
     {% for param in api.params.header -%}
     {% if param.description -%}
     /** {{ param.description }} */
@@ -21,13 +21,14 @@ export async function {{ api.functionName }}(
       {{- "?" if not param.required }}
       {{- (": " + param.type + ";") | safe }}
     {% endfor -%}
-    {% endif -%}
+    }
+    {%- endif -%}
   {%- endif -%}
-  {%- if api.hasParams %}
+  {%- if api.hasParams -%}
   {{ "," if api.body or api.file}}
-  {%- endif %}
+  {%- endif -%}
 {%- endif -%}
-{%- if api.body %}
+{%- if api.body -%}
   body
   {%- if genType === "ts" -%}
   : {% if api.body.propertiesList %}{
