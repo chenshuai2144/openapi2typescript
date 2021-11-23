@@ -54,6 +54,10 @@ export type GenerateServiceProps = {
   namespace?: string;
 
   mockFolder?: string;
+  /**
+   * 模板文件的文件路径
+   */
+  templatesFolder?: string;
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {

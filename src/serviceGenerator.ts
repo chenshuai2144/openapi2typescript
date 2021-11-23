@@ -251,6 +251,7 @@ class ServiceGenerator {
     this.finalPath = '';
     this.config = {
       projectName: 'api',
+      templatesFolder: join(__dirname, '../', 'templates'),
       ...config,
     };
     this.openAPIData = openAPIData;
@@ -775,7 +776,7 @@ class ServiceGenerator {
   }
 
   private getTemplate(type: 'interface' | 'serviceController' | 'serviceIndex'): string {
-    return readFileSync(join(__dirname, '../', 'templates', `${type}.njk`), 'utf8');
+    return readFileSync(join(this.config.templatesFolder, `${type}.njk`), 'utf8');
   }
 
   // 获取 TS 类型的属性列表
