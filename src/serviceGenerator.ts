@@ -502,15 +502,15 @@ class ServiceGenerator {
           });
         const fileName = this.replaceDot(tag);
 
-        if (genParams.length) {
-          this.classNameList.push({
-            fileName,
-            controllerName: fileName,
-          });
-        }
         let className = fileName;
         if (this.config.hook && this.config.hook.customClassName) {
           className = this.config.hook.customClassName(tag);
+        }
+        if (genParams.length) {
+          this.classNameList.push({
+            fileName: className,
+            controllerName: className
+          });
         }
         return {
           genType: 'ts',

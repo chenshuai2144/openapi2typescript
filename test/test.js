@@ -15,6 +15,27 @@ const gen = async () => {
     serversPath: './file-servers',
   });
 
+  await openAPI.generateService({
+    requestLibPath: "import request  from '@/request';",
+    schemaPath: `${__dirname}/example-files/swagger-custom-hook.json`,
+    serversPath: './servers',
+    hook: {
+        // 自定义类名
+        customClassName: (tagName) => {
+            return /[A-Z].+/.exec(tagName);
+        },
+        // 自定义函数名
+        customFunctionName: (data) => {
+            let funName = data.operationId ? data.operationId : '';
+            const suffix = 'Using';
+            if (funName.indexOf(suffix) != -1) {
+                funName = funName.substring(0, funName.lastIndexOf(suffix));
+            }
+            return funName;
+        }
+    }
+  });
+
   // check 文件生成
   const fileControllerStr = fs.readFileSync(path.join(__dirname, 'file-servers/api/fileController.ts'), 'utf8');
   assert(fileControllerStr.indexOf('!(item instanceof File)') > 0);
