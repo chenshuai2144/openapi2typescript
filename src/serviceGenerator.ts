@@ -142,7 +142,8 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
         .toString();
       return `[${arrayItemType}]`;
     }
-    return `${getType(items, namespace)}[]`;
+    const arrayType = getType(items, namespace);
+    return arrayType.includes(' | ') ? `(${arrayType})[]` : `${arrayType}[]`;
   }
 
   if (type === 'enum') {
