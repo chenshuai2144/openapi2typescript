@@ -19,6 +19,7 @@ const gen = async () => {
     requestLibPath: "import request  from '@/request';",
     schemaPath: `${__dirname}/example-files/swagger-custom-hook.json`,
     serversPath: './servers',
+    buildForSinglePackage: true,
     hook: {
         // 自定义类名
         customClassName: (tagName) => {

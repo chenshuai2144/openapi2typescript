@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 {{ requestImportStatement }}
+{% if buildForSinglePackage %}import * as {{namespace}} from './typings';{% endif %}
 
 {% for api in list -%}
 /** {{ api.desc if api.desc else '此处后端没有提供注释' }} {{api.method | upper}} {{ api.pathInComment | safe }} */
@@ -81,7 +82,7 @@ files
     {% endif %}
     if (item !== undefined && item !== null) {
       {% if genType === "ts" %}
-      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item); 
+      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item);
       {% else %}
       formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
       {% endif %}
@@ -124,7 +125,7 @@ files
     data: formData,
     {%- if api.body.mediaType === "multipart/form-data" %}
     requestType: 'form',
-    {%- endif %} 
+    {%- endif %}
     {%- else %}
     {%- if api.body %}
     data: body,

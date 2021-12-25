@@ -311,10 +311,13 @@ class ServiceGenerator {
       Log(`🚥 serves 生成失败: ${error}`);
     }
 
+    const typingFileName = this.config.buildForSinglePackage ? 'typings.ts' : 'typings.d.ts'
+
     // 生成 ts 类型声明
-    this.genFileFromTemplate('typings.d.ts', 'interface', {
+    this.genFileFromTemplate(typingFileName, 'interface', {
       namespace: this.config.namespace,
       // namespace: 'API',
+      buildForSinglePackage: this.config.buildForSinglePackage,
       list: this.getInterfaceTP(),
       disableTypeCheck: false,
     });
@@ -330,6 +333,7 @@ class ServiceGenerator {
         {
           namespace: this.config.namespace,
           requestImportStatement: this.config.requestImportStatement,
+          buildForSinglePackage: this.config.buildForSinglePackage,
           disableTypeCheck: false,
           ...tp,
         },

@@ -1,7 +1,9 @@
-declare namespace {{ namespace }} {
+{% if buildForSinglePackage !== true %}
+  declare namespace {{ namespace }} {
+{% endif %}
   {% for type in list -%}
 {%- if type.props.length %}
-  type {{ type.typeName | safe }} =
+  {%- if buildForSinglePackage %} export {%- endif %} type {{ type.typeName | safe }} =
   {%- for prop in type.props %}
      {%- if (prop[0].$ref !== undefined) and (prop | length === 1) %}
       {{ prop[0].type }}
@@ -21,4 +23,6 @@ declare namespace {{ namespace }} {
   type {{ type.typeName | safe }} = {{ type.type }};
 {%- endif %}
 {% endfor %}
-}
+{% if buildForSinglePackage !== true %}
+    }
+{% endif %}

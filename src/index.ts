@@ -58,6 +58,12 @@ export type GenerateServiceProps = {
    * 模板文件的文件路径
    */
   templatesFolder?: string;
+
+  /**
+   * 支持作为独立的 npm package 发布
+   * 解决类型定义文件 declare namespace 与 d.ts 无法在独立 package 模式下良好使用的问题
+   */
+  buildForSinglePackage?: boolean;
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
