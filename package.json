@@ -2,6 +2,10 @@
   "name": "@umijs/openapi",
   "version": "1.3.9",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+git@github.com:chenshuai2144/openapi2typescript.git"
+  },
   "license": "MIT",
   "author": "chenshuai2144",
   "main": "dist/index.js",
@@ -11,10 +15,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "localConvert4Project": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd .. && rm -rf /Users/fd/wj/psp-web-pro/src/services/wj && mv ./test/servers/api/  /Users/fd/wj/psp-web-pro/src/services/wj",
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
     "start": "tsc -w",
-    "test": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd ..",
-    "localConvert4Project": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd .. && rm -rf /Users/fd/wj/psp-web-pro/src/services/wj && mv ./test/servers/api/  /Users/fd/wj/psp-web-pro/src/services/wj"
+    "test": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd .."
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",

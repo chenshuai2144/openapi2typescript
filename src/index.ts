@@ -78,8 +78,14 @@ const converterSwaggerToOpenApi = (swagger: any) => {
 
 export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
-    const json = await fetch(schemaPath).then((rest) => rest.json());
-    return json;
+    try {
+      const json = await fetch(schemaPath).then((rest) => rest.json());
+      return json;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('fetch openapi error:', error);
+    }
+    return null;
   }
   const schema = require(schemaPath);
   return schema;
@@ -87,10 +93,10 @@ export const getSchema = async (schemaPath: string) => {
 
 const getOpenAPIConfig = async (schemaPath: string) => {
   const schema = await getSchema(schemaPath);
-  const openAPI = await converterSwaggerToOpenApi(schema);
   if (!schema) {
     return null;
   }
+  const openAPI = await converterSwaggerToOpenApi(schema);
   return openAPI;
 };
 
