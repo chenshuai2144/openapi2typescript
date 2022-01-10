@@ -635,7 +635,7 @@ class ServiceGenerator {
             const isDirectObject = ((p.schema || {}).type || p.type) === 'object';
             const refList = ((p.schema || {}).$ref || p.$ref || '').split('/');
             const ref = refList[refList.length - 1];
-            const deRefObj = (Object.entries(this.openAPIData.components.schemas || {}).find(
+            const deRefObj = (Object.entries(this.openAPIData.components && this.openAPIData.components.schemas || {}).find(
               ([k]) => k === ref,
             ) || []) as any;
             const isRefObject = (deRefObj[1] || {}).type === 'object';
@@ -736,7 +736,7 @@ class ServiceGenerator {
         }
 
         if (props.length > 0) {
-          data.push([
+          data && data.push([
             {
               typeName: resolveTypeName(
                 `${namespace}${
