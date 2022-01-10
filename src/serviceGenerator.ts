@@ -544,7 +544,7 @@ class ServiceGenerator {
     const required = typeof requestBody.required === 'boolean' ? requestBody.required : false;
     if (schema.type === 'object' && schema.properties) {
       const propertiesList = Object.keys(schema.properties).map((p) => {
-        if (schema.properties && schema.properties[p]) {
+        if (schema.properties && schema.properties[p] && !['binary', 'base64'].includes((schema.properties[p] as SchemaObject).format || '')) {
           return {
             key: p,
             schema: {
@@ -555,7 +555,7 @@ class ServiceGenerator {
           };
         }
         return undefined;
-      });
+      }).filter(p => p);
       return {
         mediaType,
         ...schema,
