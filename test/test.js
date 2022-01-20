@@ -32,6 +32,16 @@ const gen = async () => {
                 funName = funName.substring(0, funName.lastIndexOf(suffix));
             }
             return funName;
+        },
+        // 自定义类型名
+        customTypeName: (data) => {
+          const { operationId } = data;
+          const funName = operationId
+            ? operationId[0].toUpperCase() + operationId.substring(1)
+            : '';
+          const tag = operationObject.tags && operationObject.tags[0];
+
+          return `${tag ? tag : ''}${funName}`;
         }
     }
   });
