@@ -48,6 +48,8 @@ export type GenerateServiceProps = {
   hook?: {
     /** 自定义函数名称 */
     customFunctionName?: (data: OperationObject) => string;
+    /** 自定义类型名称 */
+    customTypeName?: (data: OperationObject) => string;
     /** 自定义类名 */
     customClassName?: (tagName: string) => string;
   };
