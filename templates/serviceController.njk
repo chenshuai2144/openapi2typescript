@@ -96,7 +96,7 @@ files
   return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}('{{ api.path }}', {
   {% endif -%}
     method: '{{ api.method | upper }}',
-    {%- if api.hasHeader and api.body.mediaType !== "multipart/form-data"%}
+    {%- if api.hasHeader and api.body.mediaType not in ("multipart/form-data", "application/x-www-form-urlencoded")%}
     headers: {
       {%- if api.body.mediaType %}
       'Content-Type': '{{ api.body.mediaType | safe }}',
