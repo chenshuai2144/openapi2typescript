@@ -1,12 +1,13 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
-import type { OperationObject } from 'openapi3-ts';
+import http from 'http';
 import https from 'https';
 import fetch from 'node-fetch';
+import type { OperationObject } from 'openapi3-ts';
 import converter from 'swagger2openapi';
-import { ServiceGenerator } from './serviceGenerator';
-import { mockGenerator } from './mockGenerator';
 import Log from './log';
+import { mockGenerator } from './mockGenerator';
+import { ServiceGenerator } from './serviceGenerator';
 
 const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath && requestLibPath.startsWith('import')) {
@@ -81,8 +82,9 @@ const converterSwaggerToOpenApi = (swagger: any) => {
 
 export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
+    const protocol = schemaPath.startsWith('https:') ? https : http;
     try {
-      const agent = new https.Agent({
+      const agent = new protocol.Agent({
         rejectUnauthorized: false,
       });
       const json = await fetch(schemaPath, { agent }).then((rest) => rest.json());
