@@ -1,6 +1,7 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
 import type { OperationObject } from 'openapi3-ts';
+import https from 'https';
 import fetch from 'node-fetch';
 import converter from 'swagger2openapi';
 import { ServiceGenerator } from './serviceGenerator';
@@ -81,7 +82,10 @@ const converterSwaggerToOpenApi = (swagger: any) => {
 export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
     try {
-      const json = await fetch(schemaPath).then((rest) => rest.json());
+      const agent = new https.Agent({
+        rejectUnauthorized: false,
+      });
+      const json = await fetch(schemaPath, { agent }).then((rest) => rest.json());
       return json;
     } catch (error) {
       // eslint-disable-next-line no-console
