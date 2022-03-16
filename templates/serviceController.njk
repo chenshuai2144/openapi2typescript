@@ -9,7 +9,7 @@ export async function {{ api.functionName }}(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params
   {%- if genType === "ts" -%}
-  : {{namespace}}.{{api.functionName}}Params
+  : {{namespace}}.{{api.typeName}}
     {# header 入参 -#}
     {% if api.params.header -%}
     & { // header
@@ -102,7 +102,7 @@ export async function {{ api.functionName }}(
   return request{{ ("<" + api.response.type + ">") | safe if genType === "ts" }}('{{ api.path }}', {
   {% endif -%}
     method: '{{ api.method | upper }}',
-    {%- if api.hasHeader and api.body.mediaType !== "multipart/form-data"%}
+    {%- if api.hasHeader and api.body.mediaType not in ("multipart/form-data", "application/x-www-form-urlencoded")%}
     headers: {
       {%- if api.body.mediaType %}
       'Content-Type': '{{ api.body.mediaType | safe }}',
