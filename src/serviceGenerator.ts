@@ -554,7 +554,7 @@ class ServiceGenerator {
     const required = typeof requestBody.required === 'boolean' ? requestBody.required : false;
     if (schema.type === 'object' && schema.properties) {
       const propertiesList = Object.keys(schema.properties).map((p) => {
-        if (schema.properties && schema.properties[p] && !['binary', 'base64'].includes((schema.properties[p] as SchemaObject).format || '')) {
+        if (schema.properties && schema.properties[p] && !['binary', 'base64'].includes((schema.properties[p] as SchemaObject).format || '') && !(['string[]', 'array'].includes((schema.properties[p] as SchemaObject).type || '') && ['binary', 'base64'].includes(((schema.properties[p] as SchemaObject).items as SchemaObject).format || '')) ) {
           return {
             key: p,
             schema: {
@@ -591,11 +591,11 @@ class ServiceGenerator {
     const resolved = this.resolveObject(obj);
     const props =
       (resolved.props && resolved.props.length > 0 &&
-        resolved.props[0].filter((p) => p.format === 'binary' || p.format === 'base64')) ||
+        resolved.props[0].filter((p) => p.format === 'binary' || p.format === 'base64' || ((p.type === 'string[]' || p.type === 'array') && (p.items.format === 'binary' || p.items.format === 'base64')))) ||
       [];
     if (props.length > 0) {
       ret = props.map((p) => {
-        return { title: p.name };
+        return { title: p.name, multiple: (p.type === 'string[]' || p.type === 'array') };
       });
     }
     if (resolved.type) ret = [...ret, ...this.resolveFileTP(resolved.type)];
