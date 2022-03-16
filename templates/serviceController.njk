@@ -87,9 +87,9 @@ export async function {{ api.functionName }}(
     {% endif %}
     if (item !== undefined && item !== null) {
       {% if genType === "ts" %}
-      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? new Blob([JSON.stringify(item)], {type: "application/json"}) : item);
+      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item);
       {% else %}
-      formData.append(ele, typeof item === 'object' ? new Blob([JSON.stringify(item)], {type: "application/json"}) : item);
+      formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
       {% endif %}
     }
   });
