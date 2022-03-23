@@ -364,10 +364,17 @@ class ServiceGenerator {
     );
   }
 
-  public getServiceTP() {
+  public getFuncationName(data: APIDataType) {
     // 获取路径相同部分
     const pathBasePrefix = this.getBasePrefix(Object.keys(this.openAPIData.paths));
+    return this.config.hook && this.config.hook.customFunctionName
+      ? this.config.hook.customFunctionName(data)
+      : data.operationId
+      ? this.resolveFunctionName(stripDot(data.operationId), data.method)
+      : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
+  }
 
+  public getServiceTP() {
     return Object.keys(this.apiData)
       .map((tag) => {
         // functionName tag 级别防重
@@ -395,12 +402,7 @@ class ServiceGenerator {
                 formData = true;
               }
 
-              let functionName =
-                this.config.hook && this.config.hook.customFunctionName
-                  ? this.config.hook.customFunctionName(newApi)
-                  : newApi.operationId
-                  ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
-                  : newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
+              let functionName = this.getFuncationName(newApi);
 
               if (functionName && tmpFunctionRD[functionName]) {
                 functionName = `${functionName}_${(tmpFunctionRD[functionName] += 1)}`;
@@ -744,7 +746,7 @@ class ServiceGenerator {
         if (props.length > 0) {
           data && data.push([
             {
-              typeName: this.getTypeName(operationObject),
+              typeName: `${this.getFuncationName({ ...operationObject, method, path: p })}Params`,
               type: 'Record<string, any>',
               parent: undefined,
               props: [props],
@@ -869,7 +871,7 @@ class ServiceGenerator {
     }
 
     return path
-      .replace(pathBasePrefix, '')
+      ?.replace(pathBasePrefix, '')
       .split('/')
       .map((str) => {
         let s = str;
