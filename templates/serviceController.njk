@@ -45,12 +45,15 @@ export async function {{ api.functionName }}(
   {%- endif -%}
   {{ "," if api.file }}
 {%- endif %}
-{%- if api.file %}
-files
+{%- if api.file -%}
+{%- for file in api.file -%}
+{{file.title | safe}}
 {%- if genType === "ts" -%}
-{{- "?" if not api.file.required }}
-: File[]
+{{- "?" if not api.file.required -}}
+: File {{ "[]" if file.multiple }}
 {%- endif -%}
+{{"," if not loop.last }}
+{%- endfor -%}
 {%- endif -%}
 {{ "," if api.body or api.hasParams or api.file }}
   options {{ "?: {[key: string]: any}" if genType === "ts" }}
@@ -62,15 +65,18 @@ files
   {% endif -%}
   } = params;
   {% endif -%}
-
   {% if api.hasFormData -%}
   const formData = new FormData();
   {% if api.file -%}
-  if(files){
   {% for file in api.file %}
-  formData.append('{{file.title | safe}}', files[{{ loop.index - 1 }}] || '')
-  {% endfor %}
+  if({{file.title | safe}}){
+  {% if file.multiple %}
+  {{file.title | safe}}.forEach(f => formData.append('{{file.title | safe}}', f || ''));
+  {% else %}
+  formData.append('{{file.title | safe}}', {{file.title | safe}})
+  {% endif %}
   }
+  {% endfor %}
   {%- endif -%}
   {% if api.body %}
   Object.keys(body).forEach(ele => {
@@ -81,7 +87,7 @@ files
     {% endif %}
     if (item !== undefined && item !== null) {
       {% if genType === "ts" %}
-      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item); 
+      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item);
       {% else %}
       formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
       {% endif %}
@@ -124,7 +130,7 @@ files
     data: formData,
     {%- if api.body.mediaType === "multipart/form-data" %}
     requestType: 'form',
-    {%- endif %} 
+    {%- endif %}
     {%- else %}
     {%- if api.body %}
     data: body,
