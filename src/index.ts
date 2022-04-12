@@ -62,6 +62,11 @@ export type GenerateServiceProps = {
    * 模板文件的文件路径
    */
   templatesFolder?: string;
+  
+  /**
+   * 枚举样式
+   */
+  enumStyle?: 'string-literal' | 'enum';
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {

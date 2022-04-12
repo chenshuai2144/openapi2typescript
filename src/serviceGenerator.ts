@@ -707,6 +707,7 @@ class ServiceGenerator {
             type: getDefinesType(),
             parent: result.parent,
             props: result.props || [],
+            isEnum: result.isEnum,
           };
         });
       });
@@ -750,6 +751,7 @@ class ServiceGenerator {
               type: 'Record<string, any>',
               parent: undefined,
               props: [props],
+              isEnum: false
             },
           ]);
         }
@@ -846,12 +848,26 @@ class ServiceGenerator {
   resolveEnumObject(schemaObject: SchemaObject) {
     const enumArray = schemaObject.enum;
 
-    const enumStr = Array.from(
-      new Set(
-        enumArray.map((v) => (typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v))),
-      ),
-    ).join(' | ');
+    let enumStr;
+    switch (this.config.enumStyle) {
+      case 'enum':
+        enumStr = `{${enumArray.map((v) => `${v}="${v}"`).join(',')}}`;
+        break;
+      case 'string-literal':
+        enumStr = Array.from(
+          new Set(
+            enumArray.map((v) =>
+              typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v),
+            ),
+          ),
+        ).join(' | ');
+        break;
+      default:
+        break;
+    }
+
     return {
+      isEnum: this.config.enumStyle == 'enum',
       type: Array.isArray(enumArray) ? enumStr : 'string',
     };
   }
