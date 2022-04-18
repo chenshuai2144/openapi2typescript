@@ -7,9 +7,6 @@ declare namespace {{ namespace }} {
     type {{ type.typeName | safe }} =
   {%- endif %}
   {%- for prop in type.props %}
-     {%- if (prop[0].$ref !== undefined) and (prop | length === 1) %}
-      {{ prop[0].type }}
-     {%- else %}
      {
      {%- for p in prop %}
       {%- if p.desc %}
@@ -18,7 +15,6 @@ declare namespace {{ namespace }} {
       '{{ p.name }}'{{ '' if p.required else '?' }}: {{ p.type | safe }};
      {%- endfor %}
      }
-     {%- endif %}
     {{ '' if loop.last === true else ' & '  }}
   {%- endfor %}
 {%- else %}
