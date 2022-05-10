@@ -513,7 +513,10 @@ class ServiceGenerator {
               console.error('[GenSDK] gen service param error:', error);
               throw error;
             }
-          });
+          })
+          // 排序下，要不每次git都乱了
+          .sort((a, b) => a.path.localeCompare(b.path));
+
         const fileName = this.replaceDot(tag);
 
         let className = fileName;
@@ -760,7 +763,9 @@ class ServiceGenerator {
     });
     // ---- 生成 xxxparams 类型 end---------
 
-    return data && data.reduce((p, c) => p && c && p.concat(c), []);
+    return data && data.reduce((p, c) => p && c && p.concat(c), [])
+        // 排序下，要不每次git都乱了
+        .sort((a, b) => a.typeName.localeCompare(b.typeName));
   }
 
   private genFileFromTemplate(
