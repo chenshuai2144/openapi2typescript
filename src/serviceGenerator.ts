@@ -364,10 +364,17 @@ class ServiceGenerator {
     );
   }
 
-  public getServiceTP() {
+  public getFuncationName(data: APIDataType) {
     // 获取路径相同部分
     const pathBasePrefix = this.getBasePrefix(Object.keys(this.openAPIData.paths));
+    return this.config.hook && this.config.hook.customFunctionName
+      ? this.config.hook.customFunctionName(data)
+      : data.operationId
+      ? this.resolveFunctionName(stripDot(data.operationId), data.method)
+      : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
+  }
 
+  public getServiceTP() {
     return Object.keys(this.apiData)
       .map((tag) => {
         // functionName tag 级别防重
@@ -385,22 +392,18 @@ class ServiceGenerator {
               const body = this.getBodyTP(newApi.requestBody);
               const response = this.getResponseTP(newApi.responses);
 
-              let { file, ...params } = allParams || {}; // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
-              const newfile = this.getFileTP(newApi.requestBody);
-              file = this.concatOrNull(file, newfile);
-              //const file = this.getFileTP(newApi.requestBody);
+              // let { file, ...params } = allParams || {}; // I dont't know if 'file' is valid parameter, maybe it's safe to remove it
+              // const newfile = this.getFileTP(newApi.requestBody);
+              // file = this.concatOrNull(file, newfile);
+              const params = allParams || {};
+              const file = this.getFileTP(newApi.requestBody);
 
               let formData = false;
               if ((body && (body.mediaType || '').includes('form')) || file) {
                 formData = true;
               }
 
-              let functionName =
-                this.config.hook && this.config.hook.customFunctionName
-                  ? this.config.hook.customFunctionName(newApi)
-                  : newApi.operationId
-                  ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
-                  : newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
+              let functionName = this.getFuncationName(newApi);
 
               if (functionName && tmpFunctionRD[functionName]) {
                 functionName = `${functionName}_${(tmpFunctionRD[functionName] += 1)}`;
@@ -510,7 +513,10 @@ class ServiceGenerator {
               console.error('[GenSDK] gen service param error:', error);
               throw error;
             }
-          });
+          })
+          // 排序下，要不每次git都乱了
+          .sort((a, b) => a.path.localeCompare(b.path));
+
         const fileName = this.replaceDot(tag);
 
         let className = fileName;
@@ -553,7 +559,7 @@ class ServiceGenerator {
     const required = typeof requestBody.required === 'boolean' ? requestBody.required : false;
     if (schema.type === 'object' && schema.properties) {
       const propertiesList = Object.keys(schema.properties).map((p) => {
-        if (schema.properties && schema.properties[p]) {
+        if (schema.properties && schema.properties[p] && !['binary', 'base64'].includes((schema.properties[p] as SchemaObject).format || '') && !(['string[]', 'array'].includes((schema.properties[p] as SchemaObject).type || '') && ['binary', 'base64'].includes(((schema.properties[p] as SchemaObject).items as SchemaObject).format || '')) ) {
           return {
             key: p,
             schema: {
@@ -564,7 +570,7 @@ class ServiceGenerator {
           };
         }
         return undefined;
-      });
+      }).filter(p => p);
       return {
         mediaType,
         ...schema,
@@ -589,12 +595,12 @@ class ServiceGenerator {
     let ret = [];
     const resolved = this.resolveObject(obj);
     const props =
-      (resolved.props &&
-        resolved.props.filter((p) => p.format === 'binary' || p.format === 'base64')) ||
+      (resolved.props && resolved.props.length > 0 &&
+        resolved.props[0].filter((p) => p.format === 'binary' || p.format === 'base64' || ((p.type === 'string[]' || p.type === 'array') && (p.items.format === 'binary' || p.items.format === 'base64')))) ||
       [];
     if (props.length > 0) {
       ret = props.map((p) => {
-        return { title: p.name };
+        return { title: p.name, multiple: (p.type === 'string[]' || p.type === 'array') };
       });
     }
     if (resolved.type) ret = [...ret, ...this.resolveFileTP(resolved.type)];
@@ -636,8 +642,8 @@ class ServiceGenerator {
     const templateParams: Record<string, ParameterObject[]> = {};
 
     if (parameters && parameters.length) {
-      ['query', 'header', 'path', 'cookie', 'file'].forEach((source) => {
-        //Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
+      ['query', 'header', 'path', 'cookie'/* , 'file' */].forEach((source) => {
+        // Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
         const params = parameters
           .map((p) => this.resolveRefObject(p))
           .filter((p: ParameterObject) => p.in === source)
@@ -705,6 +711,7 @@ class ServiceGenerator {
             type: getDefinesType(),
             parent: result.parent,
             props: result.props || [],
+            isEnum: result.isEnum,
           };
         });
       });
@@ -741,13 +748,14 @@ class ServiceGenerator {
           });
         }
 
-        if (props.length > 0) {
-          data && data.push([
+        if (props.length > 0 && data) {
+          data.push([
             {
-              typeName: this.getTypeName(operationObject),
+              typeName: `${this.getFuncationName({ ...operationObject, method, path: p })}Params`,
               type: 'Record<string, any>',
               parent: undefined,
               props: [props],
+              isEnum: false
             },
           ]);
         }
@@ -755,7 +763,9 @@ class ServiceGenerator {
     });
     // ---- 生成 xxxparams 类型 end---------
 
-    return data && data.reduce((p, c) => p && c && p.concat(c), []);
+    return data && data.reduce((p, c) => p && c && p.concat(c), [])
+        // 排序下，要不每次git都乱了
+        .sort((a, b) => a.typeName.localeCompare(b.typeName));
   }
 
   private genFileFromTemplate(
@@ -844,12 +854,26 @@ class ServiceGenerator {
   resolveEnumObject(schemaObject: SchemaObject) {
     const enumArray = schemaObject.enum;
 
-    const enumStr = Array.from(
-      new Set(
-        enumArray.map((v) => (typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v))),
-      ),
-    ).join(' | ');
+    let enumStr;
+    switch (this.config.enumStyle) {
+      case 'enum':
+        enumStr = `{${enumArray.map((v) => `${v}="${v}"`).join(',')}}`;
+        break;
+      case 'string-literal':
+        enumStr = Array.from(
+          new Set(
+            enumArray.map((v) =>
+              typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v),
+            ),
+          ),
+        ).join(' | ');
+        break;
+      default:
+        break;
+    }
+
     return {
+      isEnum: this.config.enumStyle == 'enum',
       type: Array.isArray(enumArray) ? enumStr : 'string',
     };
   }
@@ -869,7 +893,7 @@ class ServiceGenerator {
     }
 
     return path
-      .replace(pathBasePrefix, '')
+      ?.replace(pathBasePrefix, '')
       .split('/')
       .map((str) => {
         let s = str;
