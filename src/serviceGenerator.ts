@@ -174,7 +174,13 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
           'required' in (schemaObject.properties[key] || {})
             ? ((schemaObject.properties[key] || {}) as any).required
             : false;
-        return `${key}${required ? '' : '?'}: ${getType(
+        /** 
+         * 将类型属性变为字符串，兼容错误格式如：
+         * 3d_tile(数字开头)等错误命名，
+         * 在后面进行格式化的时候会将正确的字符串转换为正常形式，
+         * 错误的继续保留字符串。
+         * */
+        return `'${key}'${required ? '' : '?'}: ${getType(
           schemaObject.properties && schemaObject.properties[key],
           namespace,
         )}; `;
@@ -896,7 +902,11 @@ class ServiceGenerator {
       ?.replace(pathBasePrefix, '')
       .split('/')
       .map((str) => {
-        let s = str;
+        /** 
+         * 兼容错误命名如 /user/:id/:name
+         * 因为是typeName，所以直接进行转换
+         * */
+        let s = resolveTypeName(str);
         if (s.includes('-')) {
           s = s.replace(/(-\w)+/g, (_match: string, p1) => p1?.slice(1).toUpperCase());
         }
