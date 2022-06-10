@@ -39,7 +39,7 @@ const gen = async () => {
           const funName = operationId
             ? operationId[0].toUpperCase() + operationId.substring(1)
             : '';
-          const tag = operationObject.tags && operationObject.tags[0];
+          const tag = data?.tags?.[0];
 
           return `${tag ? tag : ''}${funName}`;
         }
