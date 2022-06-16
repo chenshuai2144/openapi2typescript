@@ -11,6 +11,11 @@ const gen = async () => {
   });
 
   await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-schema-contain-blank-symbol.json`,
+    serversPath: './servers/blank-symbol-servers',
+  });
+
+  await openAPI.generateService({
     schemaPath: `${__dirname}/example-files/swagger-file-convert.json`,
     serversPath: './file-servers',
   });
@@ -39,7 +44,7 @@ const gen = async () => {
           const funName = operationId
             ? operationId[0].toUpperCase() + operationId.substring(1)
             : '';
-          const tag = operationObject.tags && operationObject.tags[0];
+          const tag = data?.tags?.[0];
 
           return `${tag ? tag : ''}${funName}`;
         }

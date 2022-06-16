@@ -63,8 +63,8 @@ const resolveTypeName = (typeName: string) => {
   if (!/[\u3220-\uFA29]/.test(name)) {
     return name;
   }
-
-  return pinyin.convertToPinyin(name, '', true);
+  const noBlankName = name.replace(/ +/g, '' )
+  return pinyin.convertToPinyin(noBlankName, '', true);
 };
 
 function getRefName(refObject: any): string {
