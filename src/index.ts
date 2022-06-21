@@ -39,7 +39,7 @@ export type GenerateServiceProps = {
    */
   serversPath?: string;
   /**
-   * openAPI 3.0 的地址
+   * Swagger 2.0 或 OpenAPI 3.0 的地址
    */
   schemaPath?: string;
   /**
