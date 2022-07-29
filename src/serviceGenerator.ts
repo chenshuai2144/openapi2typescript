@@ -361,15 +361,6 @@ class ServiceGenerator {
     return c.length > 0 ? c : null;
   };
 
-  public getTypeName(operationObject: OperationObject) {
-    const namespace = this.config.namespace ? `${this.config.namespace}.` : '';
-    const customeTypeName = this.config?.hook?.customTypeName || this.config?.hook?.customFunctionName;
-
-    return resolveTypeName(
-      `${namespace}${customeTypeName?.(operationObject) ?? operationObject.operationId}Params`,
-    );
-  }
-
   public getFuncationName(data: APIDataType) {
     // 获取路径相同部分
     const pathBasePrefix = this.getBasePrefix(Object.keys(this.openAPIData.paths));
@@ -378,6 +369,14 @@ class ServiceGenerator {
       : data.operationId
       ? this.resolveFunctionName(stripDot(data.operationId), data.method)
       : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
+  }
+
+  public getTypeName(data: APIDataType) {
+    const namespace = this.config.namespace ? `${this.config.namespace}.` : '';
+    const typeName = this.config?.hook?.customTypeName?.(data)
+      || this.getFuncationName(data);
+
+    return resolveTypeName(`${namespace}${typeName ?? data.operationId}Params`);
   }
 
   public getServiceTP() {
@@ -757,7 +756,7 @@ class ServiceGenerator {
         if (props.length > 0 && data) {
           data.push([
             {
-              typeName: `${this.getFuncationName({ ...operationObject, method, path: p })}Params`,
+              typeName: this.getTypeName({ ...operationObject, method, path: p }),
               type: 'Record<string, any>',
               parent: undefined,
               props: [props],
