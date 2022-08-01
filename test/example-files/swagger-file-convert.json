@@ -78,6 +78,41 @@
         }
         },
         "title": "Response«string»"
+      },
+      "中文测试1": {
+        "type": "object",
+        "properties": {
+        "msg": {
+        "type": "string"
+        },
+        "result": {
+        "type": "string"
+        },
+        "resultCode": {
+        "type": "string"
+        },
+        "success": {
+        "type": "boolean"
+        }
+        },
+        "title": "Response«string»"
+      },
+      "中文测试2": {
+        "type": "object",
+        "properties": {
+        "msg": {
+        "type": "string"
+        },
+        "result": {
+        "type": "string"
+        },
+        "resultCode": {
+        "type": "string"
+        },
+        "success": {
+        "type": "boolean"
+        }
+        }
       }
     }
   }
