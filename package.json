@@ -23,7 +23,6 @@
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
     "dayjs": "^1.10.3",
-    "eslint": "^7.18.0",
     "glob": "^7.1.6",
     "memoizee": "^0.4.15",
     "mock.js": "^0.2.0",
