@@ -57,6 +57,11 @@ export type GenerateServiceProps = {
   };
   namespace?: string;
 
+  /**
+   * 默认为false，true时使用null代替可选
+   */
+  nullable?: boolean;
+
   mockFolder?: string;
   /**
    * 模板文件的文件路径
@@ -118,6 +123,7 @@ export const generateService = async ({
   requestLibPath,
   schemaPath,
   mockFolder,
+  nullable = false,
   ...rest
 }: GenerateServiceProps) => {
   const openAPI = await getOpenAPIConfig(schemaPath);
@@ -127,6 +133,7 @@ export const generateService = async ({
       namespace: 'API',
       requestImportStatement,
       enumStyle: 'string-literal',
+      nullable,
       ...rest,
     },
     openAPI,

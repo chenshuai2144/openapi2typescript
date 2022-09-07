@@ -12,7 +12,11 @@ declare namespace {{ namespace }} {
             {%- if p.desc %}
               /** {{ p.desc }} */
             {%- endif %}
-            '{{ p.name }}'{{ '' if p.required else '?' }}: {{ p.type | safe }};
+            {%- if nullable %}
+              '{{ p.name }}': {{ p.type | safe }}{{'' if p.required else '| null'}};
+            {%- else %}
+              '{{ p.name }}'{{ '' if p.required else '?' }}: {{ p.type | safe }};
+            {%- endif %}
           {%- endfor %}
           }
         {{ '' if loop.last === true else ' & '  }}
