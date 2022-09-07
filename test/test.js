@@ -51,6 +51,13 @@ const gen = async () => {
     }
   });
 
+  // 支持null类型作为默认值
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
+    serversPath: './servers/support-null',
+    nullable:true
+  });
+
   // check 文件生成
   const fileControllerStr = fs.readFileSync(path.join(__dirname, 'file-servers/api/fileController.ts'), 'utf8');
   assert(fileControllerStr.indexOf('!(item instanceof File)') > 0);
