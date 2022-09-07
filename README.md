@@ -38,3 +38,4 @@ npm run openapi
 | namespace  | 否 | 命名空间名称 | string | API |
 | mockFolder  | 否 | mock目录 | string | - |
 | enumStyle  | 否 | 枚举样式 | string-literal \| enum | string-literal |
+| nullable | 否 | 使用null代替可选 | boolean | false |
