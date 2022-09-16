@@ -325,6 +325,7 @@ class ServiceGenerator {
     // 生成 ts 类型声明
     this.genFileFromTemplate('typings.d.ts', 'interface', {
       namespace: this.config.namespace,
+      nullable: this.config.nullable,
       // namespace: 'API',
       list: this.getInterfaceTP(),
       disableTypeCheck: false,
