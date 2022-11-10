@@ -11,7 +11,7 @@ declare namespace {{ namespace }} {
           {
         {%- endif %}
         {%- if prop.length == 1 %}
-          {%- if not prop[0].$ref %}
+          {%- if not prop[0].$ref or prop[0].name %}
           {
           {%- endif %}
         {%- endif %}
@@ -19,7 +19,7 @@ declare namespace {{ namespace }} {
             {%- if p.desc %}
               /** {{ p.desc }} */
             {%- endif %}
-            {%- if p["$ref"] %}
+            {%- if p["$ref"] and not p.name %}
               // {{ p.$ref }}
               {{ p.type | safe }}
             {%- else %}
@@ -34,7 +34,7 @@ declare namespace {{ namespace }} {
           }
         {%- endif %}
         {%- if prop.length == 1 %}
-          {%- if not prop[0].$ref %}
+          {%- if not prop[0].$ref or prop[0].name %}
           }
           {%- endif %}
         {%- endif %}
