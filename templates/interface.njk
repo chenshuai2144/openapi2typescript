@@ -38,6 +38,9 @@ declare namespace {{ namespace }} {
           }
           {%- endif %}
         {%- endif %}
+        {%- if prop.length == 0 %}
+          {}
+        {%- endif %}
         {{ '' if loop.last === true else ' & '  }}
       {%- endfor %}
     {%- else %}
