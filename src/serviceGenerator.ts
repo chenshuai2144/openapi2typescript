@@ -11,7 +11,7 @@ import type {
   RequestBodyObject,
   ResponseObject,
   ResponsesObject,
-  SchemaObject,
+  SchemaObject
 } from 'openapi3-ts';
 import { join } from 'path';
 import ReservedDict from 'reserved-words';
@@ -596,8 +596,9 @@ class ServiceGenerator {
     };
   }
   public getFileTP(requestBody: any = {}) {
-    if (requestBody && requestBody.content && requestBody.content['multipart/form-data']) {
-      const ret = this.resolveFileTP(requestBody.content['multipart/form-data'].schema);
+    const reqBody: RequestBodyObject = this.resolveRefObject(requestBody);
+    if (reqBody && reqBody.content && reqBody.content['multipart/form-data']) {
+      const ret = this.resolveFileTP(reqBody.content['multipart/form-data'].schema);
       return ret.length > 0 ? ret : null;
     }
     return null;
@@ -620,7 +621,7 @@ class ServiceGenerator {
 
   public getResponseTP(responses: ResponsesObject = {}) {
     const response: ResponseObject | undefined =
-      responses && this.resolveRefObject(responses.default || responses['200']);
+      responses && this.resolveRefObject(responses.default || responses['200'] || responses['201']);
     const defaultResponse = {
       mediaType: '*/*',
       type: 'any',
