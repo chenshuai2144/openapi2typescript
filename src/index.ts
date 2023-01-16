@@ -72,6 +72,12 @@ export type GenerateServiceProps = {
    * 枚举样式
    */
   enumStyle?: 'string-literal' | 'enum';
+
+  /**
+   * response中数据字段
+   * example: ['result', 'res']
+   */
+  dataFields?: string[];
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {

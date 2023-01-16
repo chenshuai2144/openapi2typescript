@@ -620,6 +620,7 @@ class ServiceGenerator {
   }
 
   public getResponseTP(responses: ResponsesObject = {}) {
+    const { components } = this.openAPIData;
     const response: ResponseObject | undefined =
       responses && this.resolveRefObject(responses.default || responses['200'] || responses['201']);
     const defaultResponse = {
@@ -634,7 +635,17 @@ class ServiceGenerator {
     if (typeof resContent !== 'object' || !mediaType) {
       return defaultResponse;
     }
-    const schema = resContent[mediaType].schema || DEFAULT_SCHEMA;
+    let schema = (resContent[mediaType].schema || DEFAULT_SCHEMA) as SchemaObject;
+
+    if (schema.$ref) {
+      const refPaths = schema.$ref.split('/');
+      const refName = refPaths[refPaths.length - 1];
+      const childrenSchema = components.schemas[refName] as SchemaObject;
+      if (childrenSchema.type === 'object' && 'properties' in childrenSchema && this.config.dataFields) {
+        schema = this.config.dataFields.map(field => childrenSchema.properties[field]).filter(Boolean)?.[0] || resContent[mediaType].schema || DEFAULT_SCHEMA;
+      }
+    }
+    
     if ('properties' in schema) {
       Object.keys(schema.properties).map((fieldName) => {
         // eslint-disable-next-line @typescript-eslint/dot-notation
