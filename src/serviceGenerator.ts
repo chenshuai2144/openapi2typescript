@@ -641,7 +641,7 @@ class ServiceGenerator {
       const refPaths = schema.$ref.split('/');
       const refName = refPaths[refPaths.length - 1];
       const childrenSchema = components.schemas[refName] as SchemaObject;
-      if (childrenSchema.type === 'object' && 'properties' in childrenSchema && this.config.dataFields) {
+      if (childrenSchema?.type === 'object' && 'properties' in childrenSchema && this.config.dataFields) {
         schema = this.config.dataFields.map(field => childrenSchema.properties[field]).filter(Boolean)?.[0] || resContent[mediaType].schema || DEFAULT_SCHEMA;
       }
     }
