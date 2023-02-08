@@ -654,7 +654,7 @@ class ServiceGenerator {
     const templateParams: Record<string, ParameterObject[]> = {};
 
     if (parameters && parameters.length) {
-      ['query', 'header', 'path', 'cookie'/* , 'file' */].forEach((source) => {
+      ['query', 'path', 'cookie'/* , 'file' */].forEach((source) => {
         // Possible values are "query", "header", "path" or "cookie". (https://swagger.io/specification/)
         const params = parameters
           .map((p) => this.resolveRefObject(p))
