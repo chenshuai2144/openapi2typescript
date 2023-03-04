@@ -4,7 +4,6 @@
 /* eslint-disable no-param-reassign */
 import path from 'path';
 import fs from 'fs';
-import * as prettier from 'prettier';
 import { camelCase, upperFirst } from 'lodash';
 
 const { prettier: defaultPrettierOptions } = require('@umijs/fabric');
@@ -27,6 +26,7 @@ export const prettierFile = (content: string): [string, boolean] => {
   let result = content;
   let hasError = false;
   try {
+    const prettier = require('prettier');
     result = prettier.format(content, {
       singleQuote: true,
       trailingComma: 'all',
