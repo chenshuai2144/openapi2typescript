@@ -87,7 +87,21 @@ export async function {{ api.functionName }}(
     {% endif %}
     if (item !== undefined && item !== null) {
       {% if genType === "ts" %}
-      formData.append(ele, (typeof item === 'object' && !(item instanceof File)) ? JSON.stringify(item) : item);
+      if (typeof item === 'object' && !(item instanceof File)) {
+        if (item instanceof Array) {
+          item.forEach((f) => formData.append(ele, f || ''));
+        } else {
+          formData.append(
+            ele,
+            JSON.stringify(item),
+          );
+        }
+      } else {
+        formData.append(
+          ele,
+          item,
+        );
+      }
       {% else %}
       formData.append(ele, typeof item === 'object' ? JSON.stringify(item) : item);
       {% endif %}
