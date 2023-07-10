@@ -1,0 +1,178 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "test API",
+        "description": "test API ",
+        "version": "v1.0.0"
+    },
+    "tags": [
+        {
+            "name": "SysOperlog",
+            "description": "日志管理"
+        }
+    ],
+    "paths": {
+        "/LandIA/sysOperlog/listOperlog": {
+            "get": {
+                "tags": [
+                    "SysOperlog"
+                ],
+                "summary": "操作日志接口",
+                "operationId": "get_test1",
+                "parameters": [
+                    {
+                        "name": "startTime",
+                        "in": "query",
+                        "description": "起始时间",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "endTime",
+                        "in": "query",
+                        "description": "结束时间",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "description": "用户ID",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "分页页容量",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "pageIndex",
+                        "in": "query",
+                        "description": "分页页序号",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "reqSerial",
+                        "in": "header",
+                        "description": "请求流水号",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "请求授权码",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/F2BResponseGetListOperlogRespPost"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "SysOperlog"
+                ],
+                "summary": "操作日志接口2",
+                "operationId": "post_test2",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "请求授权码",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/F2BResponseGetListOperlogRespPost"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "F2BResponseGetListOperlogRespPost": {
+                "type": "object",
+                "properties": {
+                    "bizContent": {
+                        "$ref": "#/components/schemas/GetListOperlogRespPost"
+                    },
+                    "bizCode": {
+                        "type": "string"
+                    },
+                    "bizMsg": {
+                        "type": "string"
+                    },
+                    "sysCode": {
+                        "type": "string"
+                    },
+                    "sysMsg": {
+                        "type": "string"
+                    },
+                    "reqSerial": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetListOperlogRespPost": {
+                "type": "object",
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "rows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SysCommonLogPojo"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
