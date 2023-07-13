@@ -645,7 +645,7 @@ class ServiceGenerator {
         schema = this.config.dataFields.map(field => childrenSchema.properties[field]).filter(Boolean)?.[0] || resContent[mediaType].schema || DEFAULT_SCHEMA;
       }
     }
-    
+
     if ('properties' in schema) {
       Object.keys(schema.properties).map((fieldName) => {
         // eslint-disable-next-line @typescript-eslint/dot-notation
@@ -905,6 +905,12 @@ class ServiceGenerator {
     const props = (schemaObject.allOf || []).map((item) =>
       item.$ref ? [{ ...item, type: getType(item).split('/').pop() }] : this.getProps(item),
     );
+
+    if (schemaObject.properties) {
+      const extProps = this.getProps(schemaObject)
+      return { props:[...props, extProps] };
+    }
+
     return { props };
   }
 
@@ -919,7 +925,7 @@ class ServiceGenerator {
       ?.replace(pathBasePrefix, '')
       .split('/')
       .map((str) => {
-        /** 
+        /**
          * 兼容错误命名如 /user/:id/:name
          * 因为是typeName，所以直接进行转换
          * */
