@@ -747,7 +747,9 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-
+        operationObject.parameters = operationObject.parameters.filter(
+          (item) => (item as ParameterObject)?.in !== 'header',
+        );
         const props = [];
         if (operationObject.parameters) {
           operationObject.parameters.forEach((parameter: any) => {
@@ -1004,3 +1006,4 @@ class ServiceGenerator {
 }
 
 export { ServiceGenerator };
+

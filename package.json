@@ -18,7 +18,8 @@
     "localConvert4Project": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd .. && rm -rf /Users/fd/wj/psp-web-pro/src/services/wj && mv ./test/servers/api/  /Users/fd/wj/psp-web-pro/src/services/wj",
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
     "start": "tsc -w",
-    "test": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd .."
+    "test": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd ..",
+    "test:windows": "rimraf ./test/servers/ ./test/file-servers/ &&  ts-node ./test/test.ts --project tsconfig.json && cd .."
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
@@ -42,6 +43,7 @@
     "@types/express": "^4.17.11",
     "@types/node": "^14.14.22",
     "np": "^7.2.0",
+    "tslib": "^2.6.0",
     "typescript": "^4.1.3"
   }
 }
