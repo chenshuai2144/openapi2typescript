@@ -747,7 +747,7 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        operationObject.parameters = operationObject.parameters.filter(
+        operationObject.parameters = operationObject.parameters?.filter(
           (item) => (item as ParameterObject)?.in !== 'header',
         );
         const props = [];
