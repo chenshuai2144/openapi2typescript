@@ -110,6 +110,7 @@
           "帐号 租户帐号 UserAccount"
         ],
         "summary": "登录 - 帐密登录",
+        "description":"参数：account",
         "operationId": "accountLoginUsingPOST",
         "requestBody": {
           "content": {
@@ -121,6 +122,10 @@
           }
         },
         "responses": {
+          "default":{
+            "description":"true代表登录成功，否则为提示信息",
+            "content":{"*/*":{"schema":{"type":"string"}}}
+          },
           "200": {
             "description": "OK",
             "content": {
