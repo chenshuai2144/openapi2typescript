@@ -19,7 +19,7 @@
     "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish --any-branch",
     "start": "tsc -w",
     "test": "rm -rf ./test/servers/ ./test/file-servers/ &&  npm run build && cd ./test && node ./test.js && cd ..",
-    "test:windows": "rimraf ./test/servers/ ./test/file-servers/ &&  ts-node ./test/test.ts --project tsconfig.json && cd .."
+    "test:windows": "rimraf ./test/servers/ ./test/servers-allof/ ./test/file-servers/ && npm run build && cd ./test && ts-node ./test.js --project tsconfig.json && cd .."
   },
   "dependencies": {
     "@umijs/fabric": "^2.5.6",

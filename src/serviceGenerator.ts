@@ -510,7 +510,11 @@ class ServiceGenerator {
                 desc:
                   functionName === newApi.summary
                     ? newApi.description
-                    : [newApi.summary, newApi.description].filter((s) => s).join(' '),
+                    : [
+                      newApi.summary, 
+                      newApi.description, 
+                      (newApi.responses?.default as ResponseObject)?.description ? `返回值: ${(newApi.responses?.default as ResponseObject).description}` : ''
+                    ].filter((s) => s).join(' '),
                 hasHeader: !!(params && params.header) || !!(body && body.mediaType),
                 params: finalParams,
                 hasParams: Boolean(Object.keys(finalParams || {}).length),
