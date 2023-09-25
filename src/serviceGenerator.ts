@@ -49,12 +49,27 @@ export const getPath = () => {
   return existsSync(join(cwd, 'src')) ? join(cwd, 'src') : cwd;
 };
 
+// 兼容C#泛型的typeLastName取法
+function getTypeLastName(typeName) {
+  const tempTypeName = typeName;
+
+  const childrenTypeName = tempTypeName.match(/\[\[.+\]\]/g)?.[0];
+  if (!childrenTypeName) {
+      let publicKeyToken = (tempTypeName.split('PublicKeyToken=')?.[1] ?? '').replace('null', '');
+      let typeLastName = (tempTypeName.split(',')?.[0] ?? tempTypeName).split('/').pop().split('.').pop();
+      return publicKeyToken ? `${typeLastName}_${publicKeyToken}` : typeLastName;
+  }
+  const currentTypeName = getTypeLastName(tempTypeName.replace(childrenTypeName, ''))
+  const childrenTypeNameLastName = getTypeLastName(childrenTypeName.substring(2, childrenTypeName.length - 2))
+  return `${currentTypeName}_${childrenTypeNameLastName}`
+}
+
 // 类型声明过滤关键字
 const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  const typeLastName = typeName.split('/').pop().split('.').pop();
+  const typeLastName = getTypeLastName(typeName);
 
   const name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
@@ -635,7 +650,8 @@ class ServiceGenerator {
       return defaultResponse;
     }
     const resContent: ContentObject | undefined = response.content;
-    const mediaType = Object.keys(resContent || {})[0];
+    const resContentMediaTypes = Object.keys(resContent || {});
+    const mediaType = resContentMediaTypes.includes('application/json') ? 'application/json' : resContentMediaTypes[0]; // 优先使用 application/json
     if (typeof resContent !== 'object' || !mediaType) {
       return defaultResponse;
     }
