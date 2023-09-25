@@ -55,9 +55,18 @@ function getTypeLastName(typeName) {
 
   const childrenTypeName = tempTypeName.match(/\[\[.+\]\]/g)?.[0];
   if (!childrenTypeName) {
-      let publicKeyToken = (tempTypeName.split('PublicKeyToken=')?.[1] ?? '').replace('null', '');
-      let typeLastName = (tempTypeName.split(',')?.[0] ?? tempTypeName).split('/').pop().split('.').pop();
-      return publicKeyToken ? `${typeLastName}_${publicKeyToken}` : typeLastName;
+    let publicKeyToken = (tempTypeName.split('PublicKeyToken=')?.[1] ?? '').replace('null', '');
+    const firstTempTypeName = (tempTypeName.split(',')?.[0] ?? tempTypeName)
+    let typeLastName = firstTempTypeName.split('/').pop().split('.').pop();
+    if (typeLastName.endsWith('[]')) {
+      typeLastName = typeLastName.substring(0, typeLastName.length - 2) + 'Array';
+    }
+    // 特殊处理C#默认系统类型，不追加publicKeyToken
+    const isCsharpSystemType = firstTempTypeName.startsWith('System.');
+    if (!publicKeyToken || isCsharpSystemType) {
+      return typeLastName;
+    }
+    return `${typeLastName}_${publicKeyToken}`;
   }
   const currentTypeName = getTypeLastName(tempTypeName.replace(childrenTypeName, ''))
   const childrenTypeNameLastName = getTypeLastName(childrenTypeName.substring(2, childrenTypeName.length - 2))
@@ -526,8 +535,8 @@ class ServiceGenerator {
                   functionName === newApi.summary
                     ? newApi.description
                     : [
-                      newApi.summary, 
-                      newApi.description, 
+                      newApi.summary,
+                      newApi.description,
                       (newApi.responses?.default as ResponseObject)?.description ? `返回值: ${(newApi.responses?.default as ResponseObject).description}` : ''
                     ].filter((s) => s).join(' '),
                 hasHeader: !!(params && params.header) || !!(body && body.mediaType),
@@ -930,7 +939,7 @@ class ServiceGenerator {
 
     if (schemaObject.properties) {
       const extProps = this.getProps(schemaObject)
-      return { props:[...props, extProps] };
+      return { props: [...props, extProps] };
     }
 
     return { props };
