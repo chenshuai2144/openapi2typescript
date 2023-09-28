@@ -305,6 +305,10 @@ class ServiceGenerator {
         });
       });
     });
+    if (this.config.hook.afterOpenApiDataInited) {
+      this.openAPIData =
+        this.config.hook.afterOpenApiDataInited(this.openAPIData) || this.openAPIData;
+    }
   }
 
   public genFile() {

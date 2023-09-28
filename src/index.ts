@@ -3,7 +3,7 @@
 import http from 'http';
 import https from 'https';
 import fetch from 'node-fetch';
-import type { OperationObject, SchemaObject } from 'openapi3-ts';
+import type { OpenAPIObject, OperationObject, SchemaObject } from 'openapi3-ts';
 import converter from 'swagger2openapi';
 import Log from './log';
 import { mockGenerator } from './mockGenerator';
@@ -48,6 +48,9 @@ export type GenerateServiceProps = {
   projectName?: string;
 
   hook?: {
+    /** change open api data after constructor */
+    afterOpenApiDataInited?: (openAPIData: OpenAPIObject) => OpenAPIObject;
+
     /** 自定义函数名称 */
     customFunctionName?: (data: OperationObject) => string;
     /** 自定义类型名称 */
