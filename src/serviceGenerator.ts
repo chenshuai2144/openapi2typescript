@@ -49,12 +49,38 @@ export const getPath = () => {
   return existsSync(join(cwd, 'src')) ? join(cwd, 'src') : cwd;
 };
 
+// 兼容C#泛型的typeLastName取法
+function getTypeLastName(typeName) {
+  const tempTypeName = typeName;
+
+  const childrenTypeName = tempTypeName.match(/\[\[.+\]\]/g)?.[0];
+  if (!childrenTypeName) {
+    let publicKeyToken = (tempTypeName.split('PublicKeyToken=')?.[1] ?? '').replace('null', '');
+    const firstTempTypeName = tempTypeName.split(',')?.[0] ?? tempTypeName;
+    let typeLastName = firstTempTypeName.split('/').pop().split('.').pop();
+    if (typeLastName.endsWith('[]')) {
+      typeLastName = typeLastName.substring(0, typeLastName.length - 2) + 'Array';
+    }
+    // 特殊处理C#默认系统类型，不追加publicKeyToken
+    const isCsharpSystemType = firstTempTypeName.startsWith('System.');
+    if (!publicKeyToken || isCsharpSystemType) {
+      return typeLastName;
+    }
+    return `${typeLastName}_${publicKeyToken}`;
+  }
+  const currentTypeName = getTypeLastName(tempTypeName.replace(childrenTypeName, ''));
+  const childrenTypeNameLastName = getTypeLastName(
+    childrenTypeName.substring(2, childrenTypeName.length - 2),
+  );
+  return `${currentTypeName}_${childrenTypeNameLastName}`;
+}
+
 // 类型声明过滤关键字
 const resolveTypeName = (typeName: string) => {
   if (ReservedDict.check(typeName)) {
     return `__openAPI__${typeName}`;
   }
-  const typeLastName = typeName.split('/').pop().split('.').pop();
+  const typeLastName = getTypeLastName(typeName);
 
   const name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
@@ -305,7 +331,7 @@ class ServiceGenerator {
         });
       });
     });
-    if (this.config.hook.afterOpenApiDataInited) {
+    if (this.config.hook?.afterOpenApiDataInited) {
       this.openAPIData =
         this.config.hook.afterOpenApiDataInited(this.openAPIData) || this.openAPIData;
     }
@@ -432,9 +458,8 @@ class ServiceGenerator {
               );
               if (newApi.extensions && newApi.extensions['x-antTech-description']) {
                 const { extensions } = newApi;
-                const { apiName, antTechVersion, productCode, antTechApiName } = extensions[
-                  'x-antTech-description'
-                ];
+                const { apiName, antTechVersion, productCode, antTechApiName } =
+                  extensions['x-antTech-description'];
                 formattedPath = antTechApiName || formattedPath;
                 this.mappings.push({
                   antTechApi: formattedPath,
@@ -663,7 +688,10 @@ class ServiceGenerator {
       return defaultResponse;
     }
     const resContent: ContentObject | undefined = response.content;
-    const mediaType = Object.keys(resContent || {})[0];
+    const resContentMediaTypes = Object.keys(resContent || {});
+    const mediaType = resContentMediaTypes.includes('application/json')
+      ? 'application/json'
+      : resContentMediaTypes[0]; // 优先使用 application/json
     if (typeof resContent !== 'object' || !mediaType) {
       return defaultResponse;
     }
