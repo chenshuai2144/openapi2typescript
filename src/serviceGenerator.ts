@@ -14,6 +14,7 @@ import type {
   SchemaObject,
 } from 'openapi3-ts';
 import { join } from 'path';
+import { camelCase } from 'lodash';
 import ReservedDict from 'reserved-words';
 import rimraf from 'rimraf';
 import pinyin from 'tiny-pinyin';
@@ -318,7 +319,7 @@ class ServiceGenerator {
         }
 
         tags.forEach((tagString) => {
-          const tag = resolveTypeName(tagString);
+          const tag = camelCase(resolveTypeName(tagString));
 
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
@@ -529,7 +530,7 @@ class ServiceGenerator {
 
               return {
                 ...newApi,
-                functionName,
+                functionName: camelCase(functionName),
                 typeName: this.getTypeName(newApi),
                 path: getPrefixPath(),
                 pathInComment: formattedPath.replace(/\*/g, '&#42;'),
