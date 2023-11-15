@@ -898,6 +898,8 @@ class ServiceGenerator {
       ? Object.keys(schemaObject.properties).map((propName) => {
           const schema: SchemaObject =
             (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
+          // 剔除属性键值中的特殊符号，因为函数入参变量存在特殊符号会导致解析文件失败
+          propName = propName.replace(/[\[|\]]/g, '');
           return {
             ...schema,
             name: propName,
