@@ -120,7 +120,6 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
   let { type } = schemaObject as any;
 
   const numberEnum = [
-    'int64',
     'integer',
     'long',
     'float',
@@ -139,6 +138,7 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
 
   if (numberEnum.includes(schemaObject.format)) {
     type = 'number';
+    if (schemaObject.format === 'int64') type = 'string';
   }
 
   if (schemaObject.enum) {
@@ -458,8 +458,9 @@ class ServiceGenerator {
               );
               if (newApi.extensions && newApi.extensions['x-antTech-description']) {
                 const { extensions } = newApi;
-                const { apiName, antTechVersion, productCode, antTechApiName } =
-                  extensions['x-antTech-description'];
+                const { apiName, antTechVersion, productCode, antTechApiName } = extensions[
+                  'x-antTech-description'
+                ];
                 formattedPath = antTechApiName || formattedPath;
                 this.mappings.push({
                   antTechApi: formattedPath,
