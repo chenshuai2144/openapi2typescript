@@ -298,7 +298,6 @@ class ServiceGenerator {
     this.config = {
       projectName: 'api',
       templatesFolder: join(__dirname, '../', 'templates'),
-      isCamelCase: true,
       ...config,
     };
     this.openAPIData = openAPIData;

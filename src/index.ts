@@ -196,6 +196,7 @@ export const generateService = async ({
       requestImportStatement,
       enumStyle: 'string-literal',
       nullable,
+      isCamelCase: true,
       ...rest,
     },
     openAPI,
