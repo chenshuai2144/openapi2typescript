@@ -879,7 +879,13 @@ class ServiceGenerator {
       nunjucks.configure({
         autoescape: false,
       });
-      return writeFile(this.finalPath, fileName, nunjucks.renderString(template, params));
+
+      return writeFile({
+        folderPath: this.finalPath,
+        fileName: fileName,
+        content: nunjucks.renderString(template, params),
+        isSingleQuote: this.config.isSingleQuote,
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[GenSDK] file gen fail:', fileName, 'type:', type);

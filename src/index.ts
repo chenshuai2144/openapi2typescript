@@ -134,7 +134,14 @@ export type GenerateServiceProps = {
    * 模板文件、请求函数采用小驼峰命名
    */
   isCamelCase?: boolean;
+
+  /**
+   * 字符串使用单引号or双引号
+   */
+  isSingleQuote?: boolean;
 };
+
+export type ISingleQuote = Pick<GenerateServiceProps, "isSingleQuote">
 
 const converterSwaggerToOpenApi = (swagger: any) => {
   if (!swagger.swagger) {
@@ -186,6 +193,7 @@ export const generateService = async ({
   schemaPath,
   mockFolder,
   nullable = false,
+  isSingleQuote = true,
   ...rest
 }: GenerateServiceProps) => {
   const openAPI = await getOpenAPIConfig(schemaPath);
@@ -197,6 +205,7 @@ export const generateService = async ({
       enumStyle: 'string-literal',
       nullable,
       isCamelCase: true,
+      isSingleQuote,
       ...rest,
     },
     openAPI,
@@ -207,6 +216,7 @@ export const generateService = async ({
     await mockGenerator({
       openAPI,
       mockFolder: mockFolder || './mocks/',
+      isSingleQuote,
     });
   }
 };

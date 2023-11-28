@@ -5,6 +5,7 @@ import {dirname, join} from 'path';
 import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
 import pinyin from "tiny-pinyin";
+import { ISingleQuote } from '.';
 
 Mock.Random.extend({
   country() {
@@ -153,22 +154,25 @@ const genByTemp = ( {
 };
 
 const genMockFiles = (mockFunction: string[]) => {
-  return prettierFile(` 
-// @ts-ignore
-import { Request, Response } from 'express';
-
-export default {
-${mockFunction.join('\n,')}
-    }`)[0];
+  return prettierFile({
+    content: `
+      // @ts-ignore
+      import { Request, Response } from 'express';
+      
+      export default {
+      ${mockFunction.join('\n,')}
+    }`
+  })[0];
 };
-export type genMockDataServerConfig = { openAPI: any; mockFolder: string };
+export type genMockDataServerConfig = { openAPI: any; mockFolder: string } & ISingleQuote;
 
-const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) => {
+const mockGenerator = async ({ openAPI, mockFolder, isSingleQuote }: genMockDataServerConfig) => {
   const openAPParse = new OpenAPIParserMock(openAPI);
   const docs = openAPParse.parser();
   const pathList = Object.keys(docs.paths);
   const { paths } = docs;
   const mockActionsObj = {};
+
   pathList.forEach((path) => {
     const pathConfig = paths[path];
     Object.keys(pathConfig).forEach((method) => {
@@ -202,18 +206,27 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
       }
     });
   });
+
   Object.keys(mockActionsObj).forEach((file) => {
     if (!file || file === 'undefined') {
       return;
     }
+
     if (file.includes('/')) {
       const dirName = dirname(join(mockFolder, `${file}.mock.ts`));
       if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName);
       }
     }
-    writeFile(mockFolder, `${file}.mock.ts`, genMockFiles(mockActionsObj[file]));
+
+    writeFile({ 
+      folderPath: mockFolder,
+      fileName: `${file}.mock.ts`,
+      content: genMockFiles(mockActionsObj[file]),
+      isSingleQuote,
+    });
   });
+
   Log('✅ 生成 mock 文件成功');
 };
 

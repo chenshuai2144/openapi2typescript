@@ -41,3 +41,4 @@ npm run openapi
 | nullable | 否 | 使用null代替可选 | boolean | false |
 | dataFields | 否 | response中数据字段 | string[] | - |
 | isCamelCase | 否 | 小驼峰命名文件和请求函数 | boolean | true |
+| isSingleQuote | 否 | 字符串使用单引号 或 双引号 | boolean | true |

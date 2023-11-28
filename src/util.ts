@@ -5,6 +5,7 @@
 import path from 'path';
 import fs from 'fs';
 import { camelCase, upperFirst } from 'lodash';
+import type { GenerateServiceProps, ISingleQuote } from '.';
 
 const { prettier: defaultPrettierOptions } = require('@umijs/fabric');
 
@@ -22,31 +23,42 @@ export const mkdir = (dir: string) => {
   }
 };
 
-export const prettierFile = (content: string): [string, boolean] => {
+export const prettierFile = ({ content, isSingleQuote }: { content: string } & ISingleQuote): [string, boolean] => {
   let result = content;
   let hasError = false;
+
   try {
     const prettier = require('prettier');
     result = prettier.format(content, {
-      singleQuote: true,
       trailingComma: 'all',
       printWidth: 100,
       parser: 'typescript',
       ...defaultPrettierOptions,
+      singleQuote: isSingleQuote,
     });
   } catch (error) {
     hasError = true;
   }
+
   return [result, hasError];
 };
 
-export const writeFile = (folderPath: string, fileName: string, content: string) => {
+interface IWriteFileParams extends ISingleQuote {
+  folderPath: string;
+  fileName: string;
+  content: string;
+}
+
+export const writeFile = (params: IWriteFileParams) => {
+  const { folderPath, fileName, content, isSingleQuote } = params;
   const filePath = path.join(folderPath, fileName);
   mkdir(path.dirname(filePath));
-  const [prettierContent, hasError] = prettierFile(content);
+  const [prettierContent, hasError] = prettierFile({ content, isSingleQuote });
+
   fs.writeFileSync(filePath, prettierContent, {
     encoding: 'utf8',
   });
+
   return hasError;
 };
 
