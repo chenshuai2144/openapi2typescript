@@ -136,12 +136,12 @@ export type GenerateServiceProps = {
   isCamelCase?: boolean;
 
   /**
-   * 字符串使用单引号or双引号
+   * 字符串使用单引号 或 双引号
    */
   isSingleQuote?: boolean;
 };
 
-export type ISingleQuote = Pick<GenerateServiceProps, "isSingleQuote">
+export type ISingleQuote = Pick<GenerateServiceProps, "isSingleQuote">;
 
 const converterSwaggerToOpenApi = (swagger: any) => {
   if (!swagger.swagger) {

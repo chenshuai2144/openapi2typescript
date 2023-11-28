@@ -160,8 +160,9 @@ const genMockFiles = (mockFunction: string[]) => {
       import { Request, Response } from 'express';
       
       export default {
-      ${mockFunction.join('\n,')}
-    }`
+        ${mockFunction.join('\n,')}
+      }
+    `
   })[0];
 };
 export type genMockDataServerConfig = { openAPI: any; mockFolder: string } & ISingleQuote;
