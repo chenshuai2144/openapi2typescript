@@ -40,3 +40,4 @@ npm run openapi
 | enumStyle  | 否 | 枚举样式 | string-literal \| enum | string-literal |
 | nullable | 否 | 使用null代替可选 | boolean | false |
 | dataFields | 否 | response中数据字段 | string[] | - |
+| isCamelCase | 否 | 小驼峰命名文件和请求函数 | boolean | true |

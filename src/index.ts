@@ -129,6 +129,11 @@ export type GenerateServiceProps = {
    * example: ['result', 'res']
    */
   dataFields?: string[];
+
+  /**
+   * 模板文件、请求函数采用小驼峰命名
+   */
+  isCamelCase?: boolean;
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
@@ -191,6 +196,7 @@ export const generateService = async ({
       requestImportStatement,
       enumStyle: 'string-literal',
       nullable,
+      isCamelCase: true,
       ...rest,
     },
     openAPI,

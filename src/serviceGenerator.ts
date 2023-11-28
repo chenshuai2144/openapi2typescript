@@ -319,7 +319,7 @@ class ServiceGenerator {
         }
 
         tags.forEach((tagString) => {
-          const tag = camelCase(resolveTypeName(tagString));
+          const tag = this.config.isCamelCase ? camelCase(resolveTypeName(tagString)) : resolveTypeName(tagString);
 
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
@@ -531,7 +531,7 @@ class ServiceGenerator {
 
               return {
                 ...newApi,
-                functionName: camelCase(functionName),
+                functionName: this.config.isCamelCase ? camelCase(functionName) : functionName,
                 typeName: this.getTypeName(newApi),
                 path: getPrefixPath(),
                 pathInComment: formattedPath.replace(/\*/g, '&#42;'),
