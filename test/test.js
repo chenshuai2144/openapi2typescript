@@ -70,6 +70,13 @@ const gen = async () => {
     isCamelCase: true,
   });
 
+  // 字符串使用双引号
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
+    serversPath: './servers/single-quote',
+    isSingleQuote: false,
+  });
+
   await openAPI.generateService({
     schemaPath: `${__dirname}/example-files/swagger-file-convert.json`,
     serversPath: './file-servers',

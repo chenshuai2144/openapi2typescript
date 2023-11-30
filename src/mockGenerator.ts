@@ -5,7 +5,7 @@ import {dirname, join} from 'path';
 import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
 import pinyin from "tiny-pinyin";
-import { ISingleQuote } from '.';
+import type { ISingleQuote } from '.';
 
 Mock.Random.extend({
   country() {

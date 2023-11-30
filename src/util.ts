@@ -5,7 +5,7 @@
 import path from 'path';
 import fs from 'fs';
 import { camelCase, upperFirst } from 'lodash';
-import type { GenerateServiceProps, ISingleQuote } from '.';
+import type { ISingleQuote } from '.';
 
 const { prettier: defaultPrettierOptions } = require('@umijs/fabric');
 
