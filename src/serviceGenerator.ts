@@ -441,7 +441,7 @@ class ServiceGenerator {
               const file = this.getFileTP(newApi.requestBody);
 
               let formData = false;
-              if ((body && (body.mediaType || '').includes('form')) || file) {
+              if ((body && (body.mediaType || '').includes('form-data')) || file) {
                 formData = true;
               }
 
