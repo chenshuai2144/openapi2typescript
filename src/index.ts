@@ -21,6 +21,7 @@ const getImportStatement = (requestLibPath: string) => {
 
 export type GenerateServiceProps = {
   requestLibPath?: string;
+  requestOptionsType?: string;
   requestImportStatement?: string;
   /**
    * api 的前缀
@@ -186,6 +187,7 @@ export const generateService = async ({
   schemaPath,
   mockFolder,
   nullable = false,
+  requestOptionsType = '{[key: string]: any}',
   ...rest
 }: GenerateServiceProps) => {
   const openAPI = await getOpenAPIConfig(schemaPath);
@@ -193,6 +195,7 @@ export const generateService = async ({
   const serviceGenerator = new ServiceGenerator(
     {
       namespace: 'API',
+      requestOptionsType,
       requestImportStatement,
       enumStyle: 'string-literal',
       nullable,
