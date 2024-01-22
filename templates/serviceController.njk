@@ -144,7 +144,7 @@ export async function {{ api.functionName }}(
     data: body,
     {%- endif %}
     {%- endif %}
-    ...(options || {}),
+    ...(options || {{api.options | dump}}),
   });
 }
 
