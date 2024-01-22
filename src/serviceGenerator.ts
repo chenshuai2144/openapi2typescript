@@ -372,6 +372,7 @@ class ServiceGenerator {
         template,
         {
           namespace: this.config.namespace,
+          requestOptionsType: this.config.requestOptionsType,
           requestImportStatement: this.config.requestImportStatement,
           disableTypeCheck: false,
           ...tp,
@@ -440,7 +441,7 @@ class ServiceGenerator {
               const file = this.getFileTP(newApi.requestBody);
 
               let formData = false;
-              if ((body && (body.mediaType || '').includes('form')) || file) {
+              if ((body && (body.mediaType || '').includes('form-data')) || file) {
                 formData = true;
               }
 
@@ -553,6 +554,7 @@ class ServiceGenerator {
                 hasHeader: !!(params && params.header) || !!(body && body.mediaType),
                 params: finalParams,
                 hasParams: Boolean(Object.keys(finalParams || {}).length),
+                options: this.config.hook?.customOptionsDefaultValue?.(newApi) || {}, 
                 body,
                 file,
                 hasFormData: formData,

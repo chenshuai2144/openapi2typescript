@@ -30,6 +30,7 @@ npm run openapi
 |  属性   | 必填  | 备注 | 类型 | 默认值 |
 |  ----  | ----  |  ----  |  ----  | - |
 | requestLibPath  | 否 | 自定义请求方法路径 | string | - |
+| requestOptionsType  | 否 | 自定义请求方法 options 参数类型 | string | {[key: string]: any} |
 | requestImportStatement  | 否 | 自定义请求方法表达式 | string | - |
 | apiPrefix  | 否 | api 的前缀 | string | - |
 | serversPath  | 否 | 生成的文件夹的路径 | string | - |
