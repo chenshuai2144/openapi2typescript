@@ -56,7 +56,7 @@ export async function {{ api.functionName }}(
 {%- endfor -%}
 {%- endif -%}
 {{ "," if api.body or api.hasParams or api.file }}
-  options {{ "?: {[key: string]: any}" if genType === "ts" }}
+  options {{ ("?: " + requestOptionsType) if genType === "ts" }}
 ) {
   {% if api.params and api.params.path -%}
   const { {% for param in api.params.path %}'{{ param.name }}': {{ param.alias }}, {% endfor %}
@@ -144,7 +144,7 @@ export async function {{ api.functionName }}(
     data: body,
     {%- endif %}
     {%- endif %}
-    ...(options || {}),
+    ...(options || {{api.options | dump}}),
   });
 }
 
