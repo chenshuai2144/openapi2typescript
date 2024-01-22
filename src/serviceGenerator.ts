@@ -139,7 +139,6 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
 
   if (numberEnum.includes(schemaObject.format)) {
     type = 'number';
-    if (schemaObject.format === 'int64') type = 'string';
   }
 
   if (schemaObject.enum) {
