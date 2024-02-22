@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import glob from 'glob';
+import { camelCase } from 'lodash';
 import * as nunjucks from 'nunjucks';
 import type {
   ContentObject,
@@ -14,7 +15,6 @@ import type {
   SchemaObject,
 } from 'openapi3-ts';
 import { join } from 'path';
-import { camelCase } from 'lodash';
 import ReservedDict from 'reserved-words';
 import rimraf from 'rimraf';
 import pinyin from 'tiny-pinyin';
@@ -925,6 +925,7 @@ class ServiceGenerator {
   }
 
   resolveObject(schemaObject: SchemaObject) {
+    schemaObject = schemaObject ?? {};
     // 引用类型
     if (schemaObject.$ref) {
       return this.resolveRefObject(schemaObject);
