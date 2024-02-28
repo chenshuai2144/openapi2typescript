@@ -210,7 +210,7 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
         }
         if (
           'required' in (schemaObject.properties[key] || {}) &&
-          (schemaObject.properties[key] || {}).required
+          ((schemaObject.properties[key] || {}) as any).required
         ) {
           required = true;
         }
