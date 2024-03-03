@@ -138,6 +138,10 @@ class OpenAPIGeneratorMockJs {
       }
     }
 
+    if (type === 'null') {
+      return null;
+    }
+
     if (type === 'object') {
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};

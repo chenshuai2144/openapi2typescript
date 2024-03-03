@@ -137,6 +137,10 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
 
   const stringEnum = ['string', 'email', 'password', 'url', 'byte', 'binary'];
 
+  if (type === 'null') {
+    return 'null';
+  }
+
   if (numberEnum.includes(schemaObject.format)) {
     type = 'number';
   }
