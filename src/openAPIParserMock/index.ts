@@ -126,14 +126,18 @@ class OpenAPIGeneratorMockJs {
       : utils.objectify(schema);
 
     let { type } = localSchema;
-    const { properties, additionalProperties, items } = localSchema;
+    const { properties, additionalProperties, items, anyOf, oneOf } = localSchema;
 
     if (!type) {
       if (properties) {
         type = 'object';
       } else if (items) {
         type = 'array';
-      } else {
+      }
+      else if (anyOf || oneOf) {
+        type = 'union';
+      }
+      else {
         return null;
       }
     }
@@ -167,6 +171,16 @@ class OpenAPIGeneratorMockJs {
     if (type === 'array') {
       const item = this.sampleFromSchema(items, propsName);
       return new Array(parseInt((Math.random() * 20).toFixed(0), 10)).fill(item);
+    }
+
+    if (type === 'union') {
+      const subschemas = anyOf || oneOf;
+      const subschemas_length = subschemas && subschemas.length || 0;
+      if (subschemas_length) {
+        const index = utils.getRandomInt(0, subschemas_length);
+        const obj = this.sampleFromSchema(subschemas[index], propsName);
+        return obj;
+      }
     }
 
     if (localSchema.enum) {
