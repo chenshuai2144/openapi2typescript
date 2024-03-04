@@ -137,6 +137,10 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
 
   const stringEnum = ['string', 'email', 'password', 'url', 'byte', 'binary'];
 
+  if (type === 'null') {
+    return 'null';
+  }
+
   if (numberEnum.includes(schemaObject.format)) {
     type = 'number';
   }
@@ -191,6 +195,9 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
 
   if (schemaObject.oneOf && schemaObject.oneOf.length) {
     return schemaObject.oneOf.map((item) => defaultGetType(item, namespace)).join(' | ');
+  }
+  if (schemaObject.anyOf && schemaObject.anyOf.length) {
+    return schemaObject.anyOf.map((item) => defaultGetType(item, namespace)).join(' | ');
   }
   if (schemaObject.allOf && schemaObject.allOf.length) {
     return `(${schemaObject.allOf.map((item) => defaultGetType(item, namespace)).join(' & ')})`;
@@ -275,8 +282,8 @@ function defaultGetFileTag(operationObject: OperationObject, apiPath: string, _a
   return operationObject['x-swagger-router-controller']
     ? [operationObject['x-swagger-router-controller']]
     : operationObject.tags || [operationObject.operationId] || [
-          apiPath.replace('/', '').split('/')[1],
-        ];
+      apiPath.replace('/', '').split('/')[1],
+    ];
 }
 class ServiceGenerator {
   protected apiData: TagAPIDataType = {};
@@ -405,8 +412,8 @@ class ServiceGenerator {
     return this.config.hook && this.config.hook.customFunctionName
       ? this.config.hook.customFunctionName(data)
       : data.operationId
-      ? this.resolveFunctionName(stripDot(data.operationId), data.method)
-      : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
+        ? this.resolveFunctionName(stripDot(data.operationId), data.method)
+        : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
   }
 
   public getTypeName(data: APIDataType) {
@@ -504,11 +511,11 @@ class ServiceGenerator {
                 const prefix =
                   typeof this.config.apiPrefix === 'function'
                     ? `${this.config.apiPrefix({
-                        path: formattedPath,
-                        method: newApi.method,
-                        namespace: tag,
-                        functionName,
-                      })}`.trim()
+                      path: formattedPath,
+                      method: newApi.method,
+                      namespace: tag,
+                      functionName,
+                    })}`.trim()
                     : this.config.apiPrefix.trim();
 
                 if (!prefix) {
@@ -543,18 +550,18 @@ class ServiceGenerator {
                   functionName === newApi.summary
                     ? newApi.description
                     : [
-                        newApi.summary,
-                        newApi.description,
-                        (newApi.responses?.default as ResponseObject)?.description
-                          ? `返回值: ${(newApi.responses?.default as ResponseObject).description}`
-                          : '',
-                      ]
-                        .filter((s) => s)
-                        .join(' '),
+                      newApi.summary,
+                      newApi.description,
+                      (newApi.responses?.default as ResponseObject)?.description
+                        ? `返回值: ${(newApi.responses?.default as ResponseObject).description}`
+                        : '',
+                    ]
+                      .filter((s) => s)
+                      .join(' '),
                 hasHeader: !!(params && params.header) || !!(body && body.mediaType),
                 params: finalParams,
                 hasParams: Boolean(Object.keys(finalParams || {}).length),
-                options: this.config.hook?.customOptionsDefaultValue?.(newApi) || {}, 
+                options: this.config.hook?.customOptionsDefaultValue?.(newApi) || {},
                 body,
                 file,
                 hasFormData: formData,
@@ -897,19 +904,19 @@ class ServiceGenerator {
     const requiredPropKeys = schemaObject?.required ?? false;
     return schemaObject.properties
       ? Object.keys(schemaObject.properties).map((propName) => {
-          const schema: SchemaObject =
-            (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
-          // 剔除属性键值中的特殊符号，因为函数入参变量存在特殊符号会导致解析文件失败
-          propName = propName.replace(/[\[|\]]/g, '');
-          return {
-            ...schema,
-            name: propName,
-            type: this.getType(schema),
-            desc: [schema.title, schema.description].filter((s) => s).join(' '),
-            // 如果没有 required 信息，默认全部是非必填
-            required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
-          };
-        })
+        const schema: SchemaObject =
+          (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
+        // 剔除属性键值中的特殊符号，因为函数入参变量存在特殊符号会导致解析文件失败
+        propName = propName.replace(/[\[|\]]/g, '');
+        return {
+          ...schema,
+          name: propName,
+          type: this.getType(schema),
+          desc: [schema.title, schema.description].filter((s) => s).join(' '),
+          // 如果没有 required 信息，默认全部是非必填
+          required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
+        };
+      })
       : [];
   }
 

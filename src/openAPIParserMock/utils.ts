@@ -45,4 +45,10 @@ function inferSchema(thing) {
   return thing;
 }
 
-export { isObject, get, objectify, isFunc, inferSchema, normalizeArray };
+function getRandomInt(min, max) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+}
+
+export { isObject, get, objectify, isFunc, inferSchema, normalizeArray, getRandomInt };

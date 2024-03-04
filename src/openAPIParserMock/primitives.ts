@@ -20,7 +20,7 @@ export default {
   string_city: '@city',
   string_avatar: '@avatar',
   string_href: '@href',
-  'string_string(16)': 'string(16)',
+  'string_string(16)': '@string(16)',
   'string_date-time': '@datetime',
   string_date: '@date',
   number: '@integer(60, 100)',
