@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import glob from 'glob';
-import { camelCase } from 'lodash';
+import { camelCase, isBoolean, isArray } from 'lodash';
 import * as nunjucks from 'nunjucks';
 import type {
   ContentObject,
@@ -208,10 +208,19 @@ const defaultGetType = (schemaObject: SchemaObject | undefined, namespace: strin
     }
     return `{ ${Object.keys(schemaObject.properties)
       .map((key) => {
-        const required =
-          'required' in (schemaObject.properties[key] || {})
-            ? ((schemaObject.properties[key] || {}) as any).required
-            : false;
+        let required = false;
+        if (isBoolean(schemaObject.required) && schemaObject.required) {
+          required = true;
+        }
+        if (isArray(schemaObject.required) && schemaObject.required.includes(key)) {
+          required = true;
+        }
+        if (
+          'required' in (schemaObject.properties[key] || {}) &&
+          ((schemaObject.properties[key] || {}) as any).required
+        ) {
+          required = true;
+        }
         /**
          * 将类型属性变为字符串，兼容错误格式如：
          * 3d_tile(数字开头)等错误命名，
