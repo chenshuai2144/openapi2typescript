@@ -170,6 +170,9 @@ export const getSchema = async (schemaPath: string) => {
     }
     return null;
   }
+  if (require.cache[schemaPath]) {
+    delete require.cache[schemaPath];
+  }
   const schema = require(schemaPath);
   return schema;
 };
