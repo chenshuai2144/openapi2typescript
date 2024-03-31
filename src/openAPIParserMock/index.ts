@@ -126,7 +126,19 @@ class OpenAPIGeneratorMockJs {
       : utils.objectify(schema);
 
     let { type } = localSchema;
-    const { properties, additionalProperties, items, anyOf, oneOf } = localSchema;
+    const { properties, additionalProperties, items, anyOf, oneOf, allOf } = localSchema;
+
+    if (allOf) {
+      let obj = {};
+      allOf.forEach((item) => {
+        const newObj = this.sampleFromSchema(item, propsName);
+        obj = {
+          ...obj,
+          ...newObj,
+        };
+      });
+      return obj;
+    }
 
     if (!type) {
       if (properties) {
