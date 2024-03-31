@@ -133,11 +133,9 @@ class OpenAPIGeneratorMockJs {
         type = 'object';
       } else if (items) {
         type = 'array';
-      }
-      else if (anyOf || oneOf) {
+      } else if (anyOf || oneOf) {
         type = 'union';
-      }
-      else {
+      } else {
         return null;
       }
     }
@@ -175,7 +173,7 @@ class OpenAPIGeneratorMockJs {
 
     if (type === 'union') {
       const subschemas = anyOf || oneOf;
-      const subschemas_length = subschemas && subschemas.length || 0;
+      const subschemas_length = (subschemas && subschemas.length) || 0;
       if (subschemas_length) {
         const index = utils.getRandomInt(0, subschemas_length);
         const obj = this.sampleFromSchema(subschemas[index], propsName);
@@ -203,13 +201,24 @@ class OpenAPIGeneratorMockJs {
         const api = openAPI.paths[path][method];
         for (const code in api.responses) {
           const response = api.responses[code];
-          const schema =
-            response.content &&
-            response.content['application/json'] &&
-            utils.inferSchema(response.content['application/json']);
 
-          if (schema) {
-            response.example = schema ? this.sampleFromSchema(schema) : null;
+          const keys = Object.keys(response.content || {});
+          if (keys.length) {
+            let key: string;
+
+            if (keys.includes('application/json')) {
+              key = 'application/json';
+            } else if (keys.includes('*/*')) {
+              key = '*/*';
+            } else {
+              key = keys[0];
+            }
+
+            const schema = utils.inferSchema(response.content[key]);
+
+            if (schema) {
+              response.example = schema ? this.sampleFromSchema(schema) : null;
+            }
           }
         }
         if (!api.parameters) continue;
