@@ -120,9 +120,28 @@ class OpenAPIGeneratorMockJs {
     this.sampleFromSchema = memoizee(this.sampleFromSchema);
   }
 
-  sampleFromSchema = (schema: any, propsName?: string[]) => {
-    const localSchema = schema.$ref
-      ? utils.get(this.openAPI, schema.$ref.replace('#/', '').split('/'))
+  sampleFromSchema = (
+    schema: any,
+    propsName?: string[],
+    schemaMap: Map<string, Set<number>> = new Map(),
+  ) => {
+    let schemaRef = schema.$ref;
+
+    if (schemaRef) {
+      // 记录每个schema出现的层级，如果超过两个，直接返回null，避免出现无限生成的情况
+      if (schemaMap.has(schemaRef)) {
+        const set = schemaMap.get(schemaRef);
+        if (set.size > 2) {
+          return null;
+        }
+        set.add(propsName?.length || 0);
+      } else {
+        schemaMap.set(schemaRef, new Set([propsName?.length || 0]));
+      }
+    }
+
+    const localSchema = schemaRef
+      ? utils.get(this.openAPI, schemaRef.replace('#/', '').split('/'))
       : utils.objectify(schema);
 
     let { type } = localSchema;
@@ -131,7 +150,7 @@ class OpenAPIGeneratorMockJs {
     if (allOf) {
       let obj = {};
       allOf.forEach((item) => {
-        const newObj = this.sampleFromSchema(item, propsName);
+        const newObj = this.sampleFromSchema(item, propsName, schemaMap);
         obj = {
           ...obj,
           ...newObj,
@@ -160,7 +179,7 @@ class OpenAPIGeneratorMockJs {
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};
       for (const name in props) {
-        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name]);
+        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name], schemaMap);
       }
 
       if (additionalProperties === true) {
@@ -169,7 +188,7 @@ class OpenAPIGeneratorMockJs {
       }
       if (additionalProperties) {
         const additionalProps = utils.objectify(additionalProperties);
-        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName);
+        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName, schemaMap);
 
         for (let i = 1; i < 4; i += 1) {
           obj[`additionalProp${i}`] = additionalPropVal;
@@ -179,7 +198,7 @@ class OpenAPIGeneratorMockJs {
     }
 
     if (type === 'array') {
-      const item = this.sampleFromSchema(items, propsName);
+      const item = this.sampleFromSchema(items, propsName, schemaMap);
       return new Array(parseInt((Math.random() * 20).toFixed(0), 10)).fill(item);
     }
 
@@ -188,7 +207,7 @@ class OpenAPIGeneratorMockJs {
       const subschemas_length = (subschemas && subschemas.length) || 0;
       if (subschemas_length) {
         const index = utils.getRandomInt(0, subschemas_length);
-        const obj = this.sampleFromSchema(subschemas[index], propsName);
+        const obj = this.sampleFromSchema(subschemas[index], propsName, schemaMap);
         return obj;
       }
     }
