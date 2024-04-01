@@ -6,6 +6,11 @@ const openAPI = require('../dist/index');
 
 const gen = async () => {
   await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-empty.json`,
+    serversPath: './servers/empty',
+  });
+
+  await openAPI.generateService({
     schemaPath: `${__dirname}/test-allof-api.json`,
     serversPath: './servers-allof',
   });

@@ -803,6 +803,7 @@ class ServiceGenerator {
     const { components } = this.openAPIData;
     const data =
       components &&
+      components.schemas &&
       [components.schemas].map((defines) => {
         if (!defines) {
           return null;
