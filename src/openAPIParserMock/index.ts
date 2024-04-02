@@ -120,23 +120,15 @@ class OpenAPIGeneratorMockJs {
     this.sampleFromSchema = memoizee(this.sampleFromSchema);
   }
 
-  sampleFromSchema = (
-    schema: any,
-    propsName?: string[],
-    schemaMap: Map<string, Set<number>> = new Map(),
-  ) => {
+  sampleFromSchema = (schema: any, propsName?: string[], schemaSet: Set<string> = new Set()) => {
     let schemaRef = schema.$ref;
 
     if (schemaRef) {
-      // 记录每个schema出现的层级，如果超过两个，直接返回null，避免出现无限生成的情况
-      if (schemaMap.has(schemaRef)) {
-        const set = schemaMap.get(schemaRef);
-        if (set.size > 2) {
-          return null;
-        }
-        set.add(propsName?.length || 0);
+      // 如果之前已经使用过该引用结构，直接返回null,不然会陷入无限递归的情况
+      if (schemaSet.has(schemaRef)) {
+        return null;
       } else {
-        schemaMap.set(schemaRef, new Set([propsName?.length || 0]));
+        schemaSet.add(schemaRef);
       }
     }
 
@@ -150,7 +142,7 @@ class OpenAPIGeneratorMockJs {
     if (allOf) {
       let obj = {};
       allOf.forEach((item) => {
-        const newObj = this.sampleFromSchema(item, propsName, schemaMap);
+        const newObj = this.sampleFromSchema(item, propsName, new Set(schemaSet));
         obj = {
           ...obj,
           ...newObj,
@@ -179,7 +171,11 @@ class OpenAPIGeneratorMockJs {
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};
       for (const name in props) {
-        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name], schemaMap);
+        obj[name] = this.sampleFromSchema(
+          props[name],
+          [...(propsName || []), name],
+          new Set(schemaSet),
+        );
       }
 
       if (additionalProperties === true) {
@@ -188,7 +184,11 @@ class OpenAPIGeneratorMockJs {
       }
       if (additionalProperties) {
         const additionalProps = utils.objectify(additionalProperties);
-        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName, schemaMap);
+        const additionalPropVal = this.sampleFromSchema(
+          additionalProps,
+          propsName,
+          new Set(schemaSet),
+        );
 
         for (let i = 1; i < 4; i += 1) {
           obj[`additionalProp${i}`] = additionalPropVal;
@@ -198,7 +198,7 @@ class OpenAPIGeneratorMockJs {
     }
 
     if (type === 'array') {
-      const item = this.sampleFromSchema(items, propsName, schemaMap);
+      const item = this.sampleFromSchema(items, propsName, new Set(schemaSet));
       return new Array(parseInt((Math.random() * 20).toFixed(0), 10)).fill(item);
     }
 
@@ -207,7 +207,7 @@ class OpenAPIGeneratorMockJs {
       const subschemas_length = (subschemas && subschemas.length) || 0;
       if (subschemas_length) {
         const index = utils.getRandomInt(0, subschemas_length);
-        const obj = this.sampleFromSchema(subschemas[index], propsName, schemaMap);
+        const obj = this.sampleFromSchema(subschemas[index], propsName, new Set(schemaSet));
         return obj;
       }
     }
