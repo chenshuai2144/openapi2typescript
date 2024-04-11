@@ -120,24 +120,45 @@ class OpenAPIGeneratorMockJs {
     this.sampleFromSchema = memoizee(this.sampleFromSchema);
   }
 
-  sampleFromSchema = (schema: any, propsName?: string[]) => {
-    const localSchema = schema.$ref
-      ? utils.get(this.openAPI, schema.$ref.replace('#/', '').split('/'))
+  sampleFromSchema = (schema: any, propsName?: string[], schemaSet: Set<string> = new Set()) => {
+    let schemaRef = schema.$ref;
+
+    if (schemaRef) {
+      // 如果之前已经使用过该引用结构，直接返回null,不然会陷入无限递归的情况
+      if (schemaSet.has(schemaRef)) {
+        return null;
+      } else {
+        schemaSet.add(schemaRef);
+      }
+    }
+
+    const localSchema = schemaRef
+      ? utils.get(this.openAPI, schemaRef.replace('#/', '').split('/'))
       : utils.objectify(schema);
 
     let { type } = localSchema;
-    const { properties, additionalProperties, items, anyOf, oneOf } = localSchema;
+    const { properties, additionalProperties, items, anyOf, oneOf, allOf } = localSchema;
+
+    if (allOf) {
+      let obj = {};
+      allOf.forEach((item) => {
+        const newObj = this.sampleFromSchema(item, propsName, new Set(schemaSet));
+        obj = {
+          ...obj,
+          ...newObj,
+        };
+      });
+      return obj;
+    }
 
     if (!type) {
       if (properties) {
         type = 'object';
       } else if (items) {
         type = 'array';
-      }
-      else if (anyOf || oneOf) {
+      } else if (anyOf || oneOf) {
         type = 'union';
-      }
-      else {
+      } else {
         return null;
       }
     }
@@ -150,7 +171,11 @@ class OpenAPIGeneratorMockJs {
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};
       for (const name in props) {
-        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name]);
+        obj[name] = this.sampleFromSchema(
+          props[name],
+          [...(propsName || []), name],
+          new Set(schemaSet),
+        );
       }
 
       if (additionalProperties === true) {
@@ -159,7 +184,11 @@ class OpenAPIGeneratorMockJs {
       }
       if (additionalProperties) {
         const additionalProps = utils.objectify(additionalProperties);
-        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName);
+        const additionalPropVal = this.sampleFromSchema(
+          additionalProps,
+          propsName,
+          new Set(schemaSet),
+        );
 
         for (let i = 1; i < 4; i += 1) {
           obj[`additionalProp${i}`] = additionalPropVal;
@@ -169,16 +198,16 @@ class OpenAPIGeneratorMockJs {
     }
 
     if (type === 'array') {
-      const item = this.sampleFromSchema(items, propsName);
+      const item = this.sampleFromSchema(items, propsName, new Set(schemaSet));
       return new Array(parseInt((Math.random() * 20).toFixed(0), 10)).fill(item);
     }
 
     if (type === 'union') {
       const subschemas = anyOf || oneOf;
-      const subschemas_length = subschemas && subschemas.length || 0;
+      const subschemas_length = (subschemas && subschemas.length) || 0;
       if (subschemas_length) {
         const index = utils.getRandomInt(0, subschemas_length);
-        const obj = this.sampleFromSchema(subschemas[index], propsName);
+        const obj = this.sampleFromSchema(subschemas[index], propsName, new Set(schemaSet));
         return obj;
       }
     }
@@ -203,13 +232,24 @@ class OpenAPIGeneratorMockJs {
         const api = openAPI.paths[path][method];
         for (const code in api.responses) {
           const response = api.responses[code];
-          const schema =
-            response.content &&
-            response.content['application/json'] &&
-            utils.inferSchema(response.content['application/json']);
 
-          if (schema) {
-            response.example = schema ? this.sampleFromSchema(schema) : null;
+          const keys = Object.keys(response.content || {});
+          if (keys.length) {
+            let key: string;
+
+            if (keys.includes('application/json')) {
+              key = 'application/json';
+            } else if (keys.includes('*/*')) {
+              key = '*/*';
+            } else {
+              key = keys[0];
+            }
+
+            const schema = utils.inferSchema(response.content[key]);
+
+            if (schema) {
+              response.example = schema ? this.sampleFromSchema(schema) : null;
+            }
           }
         }
         if (!api.parameters) continue;
