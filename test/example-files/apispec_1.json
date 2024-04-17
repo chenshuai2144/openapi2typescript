@@ -1,0 +1,374 @@
+﻿{
+  "definitions": {},
+  "info": {
+    "description": "API for InvRet",
+    "title": "InvRet API",
+    "version": "0.3.0"
+  },
+  "paths": {
+    "/agent/runtemplate": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Module successfully launched"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Run Template"
+          }
+        },
+        "summary": "Run Template API"
+      }
+    },
+    "/licence/active": {
+      "post": {
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "description": "The file to upload",
+            "in": "formData",
+            "name": "file",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "Expired": "2024-05-15 12:45:32",
+                        "HasFeature1:": "True",
+                        "HasFeature2:": "True",
+                        "HasFeature3:": "False",
+                        "UserCount:": 10
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Active licence info"
+          }
+        },
+        "summary": "Active Licence API"
+      }
+    },
+    "/licence/info": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "Expired": "2024-05-15 12:45:32",
+                        "HasFeature1:": "True",
+                        "HasFeature2:": "True",
+                        "HasFeature3:": "False",
+                        "UserCount:": 10
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Show Licence info"
+          }
+        },
+        "summary": "Show Licence API"
+      }
+    },
+    "/licence/machinecode": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "MachineCode": "632d813473d18c3d2b1a9f9e07b19750394aab4090c63ad3609b2f1ba69bb656"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Show machine code info"
+          }
+        },
+        "summary": "Show machine code API"
+      }
+    },
+    "/licence/test": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "ok!"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Test licence info"
+          }
+        },
+        "summary": "Licence Test API"
+      }
+    },
+    "/mydata/create": {
+      "post": {
+        "parameters": [
+          {
+            "description": "The type of data to create ('folder', 'file', 'api_data_feed').",
+            "in": "formData",
+            "name": "type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Name of the folder or API data feed. Required for 'folder' and 'api_data_feed'.",
+            "in": "formData",
+            "name": "name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "File or files to upload. Required for 'file' type.",
+            "in": "formData",
+            "name": "file",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "description": "Name of the folder to upload files into. Required for 'file'.",
+            "in": "formData",
+            "name": "folder_name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Permission setting for the folder. Defaults to 'private' if not specified.",
+            "in": "formData",
+            "name": "permission",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Boolean flag to set the folder as searchable.",
+            "in": "formData",
+            "name": "is_searchable",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "description": "API code for the API data feed. Required for 'api_data_feed'.",
+            "in": "formData",
+            "name": "api_code",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Mydata successfully created"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Create Mydata"
+          }
+        },
+        "summary": "Create one Mydata for user (Folders,Files, & APIDataFeeds)"
+      }
+    },
+    "/mydata/delete": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Mydata successfully deleted"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Delete Mydata"
+          }
+        },
+        "summary": "Delete one Mydata for user (Folders,Files, & APIDataFeeds)"
+      }
+    },
+    "/mydata/list": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Module successfully launched"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List Mydata"
+          }
+        },
+        "summary": "List all mydata (Folders,Files, & APIDataFeeds)"
+      }
+    },
+    "/mydata/search": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The search keyword to look for in MyData names or tags.",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Type for the keyword. 'folder' or 'file'",
+            "in": "query",
+            "name": "type",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of MyData entries that match the search criteria.",
+            "items": {
+              "id": {
+                "example": 1,
+                "format": "int64",
+                "type": "integer"
+              },
+              "name": {
+                "example": "Sample Data",
+                "type": "string"
+              },
+              "properties": null,
+              "tags": {
+                "example": "example tag",
+                "items": null,
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "schema": null,
+            "type": "array"
+          }
+        },
+        "summary": "Search one Mydata for its name or tags."
+      }
+    },
+    "/mydata/update": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Mydata successfully updated"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Update Mydata"
+          }
+        },
+        "summary": "Update one Mydata for user (Folders,Files, & APIDataFeeds)"
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message": {
+                      "example": {
+                        "message": "Mydata successfully updated"
+                      },
+                      "type": "text"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Update Mydata"
+          }
+        },
+        "summary": "Update one Mydata for user (Folders,Files, & APIDataFeeds)"
+      }
+    }
+  },
+  "swagger": "2.0"
+}

@@ -370,7 +370,6 @@ class ServiceGenerator {
     } catch (error) {
       Log(`🚥 serves 生成失败: ${error}`);
     }
-
     // 生成 ts 类型声明
     this.genFileFromTemplate('typings.d.ts', 'interface', {
       namespace: this.config.namespace,
@@ -436,7 +435,7 @@ class ServiceGenerator {
 
   public getServiceTP() {
     return Object.keys(this.apiData)
-      .map((tag) => {
+      .map((tag, index) => {
         // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
         const genParams = this.apiData[tag]
@@ -587,7 +586,7 @@ class ServiceGenerator {
           // 排序下，要不每次git都乱了
           .sort((a, b) => a.path.localeCompare(b.path));
 
-        const fileName = this.replaceDot(tag);
+        const fileName = this.replaceDot(tag) || `api${index}`;
 
         let className = fileName;
         if (this.config.hook && this.config.hook.customClassName) {
@@ -599,14 +598,12 @@ class ServiceGenerator {
             controllerName: className,
           });
         }
-        if (fileName) {
-          return {
-            genType: 'ts',
-            className,
-            instanceName: `${fileName[0]?.toLowerCase()}${fileName.substr(1)}`,
-            list: genParams,
-          };
-        }
+        return {
+          genType: 'ts',
+          className,
+          instanceName: `${fileName[0]?.toLowerCase()}${fileName.substr(1)}`,
+          list: genParams,
+        };
       })
       .filter((ele) => !!ele?.list?.length);
   }

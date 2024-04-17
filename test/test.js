@@ -128,5 +128,11 @@ const gen = async () => {
   //   serversPath: './servers',
   //   mockFolder: './mocks',
   // });
+
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/apispec_1.json`,
+    serversPath: './apispe',
+    mockFolder: './mocks',
+  });
 };
 gen();
