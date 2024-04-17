@@ -52,9 +52,9 @@ export const getPath = () => {
 
 // 兼容C#泛型的typeLastName取法
 function getTypeLastName(typeName) {
-  const tempTypeName = typeName;
+  const tempTypeName = typeName || '';
 
-  const childrenTypeName = tempTypeName.match(/\[\[.+\]\]/g)?.[0];
+  const childrenTypeName = tempTypeName?.match(/\[\[.+\]\]/g)?.[0];
   if (!childrenTypeName) {
     let publicKeyToken = (tempTypeName.split('PublicKeyToken=')?.[1] ?? '').replace('null', '');
     const firstTempTypeName = tempTypeName.split(',')?.[0] ?? tempTypeName;
@@ -291,8 +291,8 @@ function defaultGetFileTag(operationObject: OperationObject, apiPath: string, _a
   return operationObject['x-swagger-router-controller']
     ? [operationObject['x-swagger-router-controller']]
     : operationObject.tags || [operationObject.operationId] || [
-      apiPath.replace('/', '').split('/')[1],
-    ];
+          apiPath.replace('/', '').split('/')[1],
+        ];
 }
 class ServiceGenerator {
   protected apiData: TagAPIDataType = {};
@@ -334,7 +334,9 @@ class ServiceGenerator {
         }
 
         tags.forEach((tagString) => {
-          const tag = this.config.isCamelCase ? camelCase(resolveTypeName(tagString)) : resolveTypeName(tagString);
+          const tag = this.config.isCamelCase
+            ? camelCase(resolveTypeName(tagString))
+            : resolveTypeName(tagString);
 
           if (!this.apiData[tag]) {
             this.apiData[tag] = [];
@@ -421,8 +423,8 @@ class ServiceGenerator {
     return this.config.hook && this.config.hook.customFunctionName
       ? this.config.hook.customFunctionName(data)
       : data.operationId
-        ? this.resolveFunctionName(stripDot(data.operationId), data.method)
-        : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
+      ? this.resolveFunctionName(stripDot(data.operationId), data.method)
+      : data.method + this.genDefaultFunctionName(data.path, pathBasePrefix);
   }
 
   public getTypeName(data: APIDataType) {
@@ -520,11 +522,11 @@ class ServiceGenerator {
                 const prefix =
                   typeof this.config.apiPrefix === 'function'
                     ? `${this.config.apiPrefix({
-                      path: formattedPath,
-                      method: newApi.method,
-                      namespace: tag,
-                      functionName,
-                    })}`.trim()
+                        path: formattedPath,
+                        method: newApi.method,
+                        namespace: tag,
+                        functionName,
+                      })}`.trim()
                     : this.config.apiPrefix.trim();
 
                 if (!prefix) {
@@ -559,14 +561,14 @@ class ServiceGenerator {
                   functionName === newApi.summary
                     ? newApi.description
                     : [
-                      newApi.summary,
-                      newApi.description,
-                      (newApi.responses?.default as ResponseObject)?.description
-                        ? `返回值: ${(newApi.responses?.default as ResponseObject).description}`
-                        : '',
-                    ]
-                      .filter((s) => s)
-                      .join(' '),
+                        newApi.summary,
+                        newApi.description,
+                        (newApi.responses?.default as ResponseObject)?.description
+                          ? `返回值: ${(newApi.responses?.default as ResponseObject).description}`
+                          : '',
+                      ]
+                        .filter((s) => s)
+                        .join(' '),
                 hasHeader: !!(params && params.header) || !!(body && body.mediaType),
                 params: finalParams,
                 hasParams: Boolean(Object.keys(finalParams || {}).length),
@@ -597,14 +599,16 @@ class ServiceGenerator {
             controllerName: className,
           });
         }
-        return {
-          genType: 'ts',
-          className,
-          instanceName: `${fileName[0].toLowerCase()}${fileName.substr(1)}`,
-          list: genParams,
-        };
+        if (fileName) {
+          return {
+            genType: 'ts',
+            className,
+            instanceName: `${fileName[0]?.toLowerCase()}${fileName.substr(1)}`,
+            list: genParams,
+          };
+        }
       })
-      .filter((ele) => !!ele.list.length);
+      .filter((ele) => !!ele?.list?.length);
   }
 
   public getBodyTP(requestBody: any = {}) {
@@ -914,19 +918,19 @@ class ServiceGenerator {
     const requiredPropKeys = schemaObject?.required ?? false;
     return schemaObject.properties
       ? Object.keys(schemaObject.properties).map((propName) => {
-        const schema: SchemaObject =
-          (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
-        // 剔除属性键值中的特殊符号，因为函数入参变量存在特殊符号会导致解析文件失败
-        propName = propName.replace(/[\[|\]]/g, '');
-        return {
-          ...schema,
-          name: propName,
-          type: this.getType(schema),
-          desc: [schema.title, schema.description].filter((s) => s).join(' '),
-          // 如果没有 required 信息，默认全部是非必填
-          required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
-        };
-      })
+          const schema: SchemaObject =
+            (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
+          // 剔除属性键值中的特殊符号，因为函数入参变量存在特殊符号会导致解析文件失败
+          propName = propName.replace(/[\[|\]]/g, '');
+          return {
+            ...schema,
+            name: propName,
+            type: this.getType(schema),
+            desc: [schema.title, schema.description].filter((s) => s).join(' '),
+            // 如果没有 required 信息，默认全部是非必填
+            required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
+          };
+        })
       : [];
   }
 
