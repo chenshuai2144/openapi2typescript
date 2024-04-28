@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  openapi:
+    build: .
+    volumes:
+      - .:/code
+    stdin_open: true
+    tty: true
+    
