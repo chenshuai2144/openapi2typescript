@@ -317,7 +317,7 @@ class ServiceGenerator {
     };
     if (this.config.hook?.afterOpenApiDataInited) {
       this.openAPIData =
-        this.config.hook.afterOpenApiDataInited(this.openAPIData) || this.openAPIData;
+        this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
     } else {
       this.openAPIData = openAPIData;
     }
