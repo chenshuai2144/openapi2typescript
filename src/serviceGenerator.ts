@@ -315,13 +315,18 @@ class ServiceGenerator {
       templatesFolder: join(__dirname, '../', 'templates'),
       ...config,
     };
-    this.openAPIData = openAPIData;
-    const { info } = openAPIData;
+    if (this.config.hook?.afterOpenApiDataInited) {
+      this.openAPIData =
+        this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
+    } else {
+      this.openAPIData = openAPIData;
+    }
+    const { info } = this.openAPIData;
     const basePath = '';
     this.version = info.version;
     const hookCustomFileNames = this.config.hook?.customFileNames || defaultGetFileTag;
-    Object.keys(openAPIData.paths || {}).forEach((p) => {
-      const pathItem: PathItemObject = openAPIData.paths[p];
+    Object.keys(this.openAPIData.paths || {}).forEach((p) => {
+      const pathItem: PathItemObject = this.openAPIData.paths[p];
       ['get', 'put', 'post', 'delete', 'patch'].forEach((method) => {
         const operationObject: OperationObject = pathItem[method];
         if (!operationObject) {
@@ -349,10 +354,7 @@ class ServiceGenerator {
         });
       });
     });
-    if (this.config.hook?.afterOpenApiDataInited) {
-      this.openAPIData =
-        this.config.hook.afterOpenApiDataInited(this.openAPIData) || this.openAPIData;
-    }
+    
   }
 
   public genFile() {
