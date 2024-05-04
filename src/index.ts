@@ -8,6 +8,7 @@ import converter from 'swagger2openapi';
 import Log from './log';
 import { mockGenerator } from './mockGenerator';
 import { ServiceGenerator } from './serviceGenerator';
+import type { APIDataType } from './serviceGenerator';
 
 const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath && requestLibPath.startsWith('import')) {
@@ -53,9 +54,9 @@ export type GenerateServiceProps = {
     afterOpenApiDataInited?: (openAPIData: OpenAPIObject) => OpenAPIObject;
 
     /** 自定义函数名称 */
-    customFunctionName?: (data: OperationObject) => string;
+    customFunctionName?: (data: APIDataType) => string;
     /** 自定义类型名称 */
-    customTypeName?: (data: OperationObject) => string;
+    customTypeName?: (data: APIDataType) => string;
     /** 自定义 options 默认值 */
     customOptionsDefaultValue?: (data: OperationObject) =>  Record<string, any> | undefined;
     /** 自定义类名 */
