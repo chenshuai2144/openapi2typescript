@@ -7,24 +7,36 @@
 
 如果你使用 [umi](https://umijs.org) ,你可以使用[@umijs/plugin-openapi](https://www.npmjs.com/package/@umijs/plugin-openapi) 插件。
 ## 使用
-```node
+```bash
 npm i --save-dev @umijs/openapi
 ```
-在项目根目录新建 ```openapi.config.ts```
+在项目根目录新建 ```openapi2ts.config.ts``` 或者 ```.openapi2tsrc.ts```
+> 配置文件还支持 ***openapi2ts.config.ts***, ***.openapi2tsrc.json*** 等格式，参考 [cosmiconfig](https://github.com/cosmiconfig/cosmiconfig?tab=readme-ov-file#cosmiconfig)
 ```ts
-const { generateService } = require('@umijs/openapi')
-
-generateService({
+export default {
   schemaPath: 'http://petstore.swagger.io/v2/swagger.json',
   serversPath: './servers',
-})
-
+}
 ```
-在 ```package.json``` 的 ```script``` 中添加 api: ```"openapi": "ts-node openapi.config.ts",```
+如果单个项目有多个生成需求，支持传入数组配置
+```ts
+export default [
+  {
+    schemaPath: 'http://app.swagger.io/v2/swagger.json',
+    serversPath: './servers/app',
+  },
+  {
+    schemaPath: 'http://auth.swagger.io/v2/swagger.json',
+    serversPath: './servers/auth',
+  }
+]
+```
+
+在 ```package.json``` 的 ```script``` 中添加 api: ```"openapi2ts": "openapi2ts",```
 
 生成api
-```node
-npm run openapi
+```bash
+npm run openapi2ts
 ```
 ## 参数
 |  属性   | 必填  | 备注 | 类型 | 默认值 |
