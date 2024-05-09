@@ -1,10 +1,10 @@
 import Mock from 'mockjs';
 import fs from 'fs';
-import {prettierFile, writeFile} from './util';
-import {dirname, join} from 'path';
+import { prettierFile, writeFile } from './util';
+import { dirname, join } from 'path';
 import OpenAPIParserMock from './openAPIParserMock/index';
 import Log from './log';
-import pinyin from "tiny-pinyin";
+import pinyin from 'tiny-pinyin';
 
 Mock.Random.extend({
   country() {
@@ -123,7 +123,7 @@ const genMockData = (example: string) => {
     }, {});
 };
 
-const genByTemp = ( {
+const genByTemp = ({
   method,
   path,
   parameters,
@@ -132,7 +132,14 @@ const genByTemp = ( {
 }: {
   method: string;
   path: string;
-  parameters: { name: string, in: string, description: string, required: boolean, schema: {type: string}, example: string}[];
+  parameters: {
+    name: string;
+    in: string;
+    description: string;
+    required: boolean;
+    schema: { type: string };
+    example: string;
+  }[];
   status: string;
   data: string;
 }) => {
@@ -140,12 +147,12 @@ const genByTemp = ( {
     return '';
   }
 
-  let securityPath = path
-  parameters?.forEach(item => {
-    if (item.in === "path"){
-      securityPath = securityPath.replace(`{${item.name}}`, `:${item.name}`)
+  let securityPath = path;
+  parameters?.forEach((item) => {
+    if (item.in === 'path') {
+      securityPath = securityPath.replace(`{${item.name}}`, `:${item.name}`);
     }
-  })
+  });
 
   return `'${method.toUpperCase()} ${securityPath}': (req: Request, res: Response) => {
     res.status(${status}).send(${data});
@@ -180,7 +187,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
           path.replace('/', '').split('/')[1]
         )?.replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
         if (/[\u3220-\uFA29]/.test(conte)) {
-          conte = pinyin.convertToPinyin(conte, '', true)
+          conte = pinyin.convertToPinyin(conte, '', true);
         }
         if (!conte) {
           return;

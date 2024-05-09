@@ -6,8 +6,6 @@ import path from 'path';
 import fs from 'fs';
 import { camelCase, upperFirst } from 'lodash';
 
-const { prettier: defaultPrettierOptions } = require('@umijs/fabric');
-
 export const getAbsolutePath = (filePath: string) => {
   if (filePath && !path.isAbsolute(filePath)) {
     return path.join(process.cwd(), filePath);
@@ -27,12 +25,11 @@ export const prettierFile = (content: string): [string, boolean] => {
   let hasError = false;
   try {
     const prettier = require('prettier');
+
+    const prettierOptions = prettier.resolveConfig.sync(process.cwd());
     result = prettier.format(content, {
-      singleQuote: true,
-      trailingComma: 'all',
-      printWidth: 100,
       parser: 'typescript',
-      ...defaultPrettierOptions,
+      ...prettierOptions,
     });
   } catch (error) {
     hasError = true;
