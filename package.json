@@ -9,6 +9,9 @@
   "license": "MIT",
   "author": "chenshuai2144",
   "main": "dist/index.js",
+  "bin": {
+    "openapi2ts": "dist/cli.js"
+  },
   "files": [
     "dist",
     "templates"
@@ -24,6 +27,7 @@
   "dependencies": {
     "@umijs/fabric": "^2.5.6",
     "chalk": "^4.1.2",
+    "cosmiconfig": "^9.0.0",
     "dayjs": "^1.10.3",
     "glob": "^7.1.6",
     "lodash": "^4.17.21",
