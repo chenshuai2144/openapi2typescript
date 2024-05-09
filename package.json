@@ -22,7 +22,6 @@
     "test:windows": "rimraf ./test/servers/ ./test/servers-allof/ ./test/file-servers/ && npm run build && cd ./test && ts-node ./test.js --project tsconfig.json && cd .."
   },
   "dependencies": {
-    "@umijs/fabric": "^2.5.6",
     "chalk": "^4.1.2",
     "dayjs": "^1.10.3",
     "glob": "^7.1.6",
