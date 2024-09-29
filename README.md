@@ -48,6 +48,7 @@ npm run openapi2ts
 | serversPath  | 否 | 生成的文件夹的路径 | string | - |
 | schemaPath  | 否 | Swagger 2.0 或 OpenAPI 3.0 的地址 | string | - |
 | projectName  | 否 | 项目名称 | string | - |
+| authorization | 否 | 文档登录凭证 | string | - |
 | namespace  | 否 | 命名空间名称 | string | API |
 | mockFolder  | 否 | mock目录 | string | - |
 | enumStyle  | 否 | 枚举样式 | string-literal \| enum | string-literal |

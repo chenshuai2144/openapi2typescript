@@ -48,6 +48,10 @@ export type GenerateServiceProps = {
    * 项目名称
    */
   projectName?: string;
+  /**
+   * 文档登录凭证
+   */
+  authorization?: string;
 
   hook?: {
     /** change open api data after constructor */
@@ -156,14 +160,17 @@ const converterSwaggerToOpenApi = (swagger: any) => {
   });
 };
 
-export const getSchema = async (schemaPath: string) => {
+export const getSchema = async (schemaPath: string, authorization?: string) => {
   if (schemaPath.startsWith('http')) {
     const protocol = schemaPath.startsWith('https:') ? https : http;
     try {
       const agent = new protocol.Agent({
         rejectUnauthorized: false,
       });
-      const json = await fetch(schemaPath, { agent }).then((rest) => rest.json());
+      const headers = {
+        authorization,
+      };
+      const json = await fetch(schemaPath, { agent, headers }).then((rest) => rest.json());
       return json;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -178,8 +185,8 @@ export const getSchema = async (schemaPath: string) => {
   return schema;
 };
 
-const getOpenAPIConfig = async (schemaPath: string) => {
-  const schema = await getSchema(schemaPath);
+const getOpenAPIConfig = async (schemaPath: string, authorization?: string) => {
+  const schema = await getSchema(schemaPath, authorization);
   if (!schema) {
     return null;
   }
@@ -189,6 +196,7 @@ const getOpenAPIConfig = async (schemaPath: string) => {
 
 // 从 appName 生成 service 数据
 export const generateService = async ({
+  authorization,
   requestLibPath,
   schemaPath,
   mockFolder,
@@ -196,7 +204,7 @@ export const generateService = async ({
   requestOptionsType = '{[key: string]: any}',
   ...rest
 }: GenerateServiceProps) => {
-  const openAPI = await getOpenAPIConfig(schemaPath);
+  const openAPI = await getOpenAPIConfig(schemaPath, authorization);
   const requestImportStatement = getImportStatement(requestLibPath);
   const serviceGenerator = new ServiceGenerator(
     {
