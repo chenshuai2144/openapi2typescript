@@ -167,9 +167,9 @@ export const getSchema = async (schemaPath: string, authorization?: string) => {
       const agent = new protocol.Agent({
         rejectUnauthorized: false,
       });
-      const headers = {
+      const headers = authorization ? {
         authorization,
-      };
+      } : {};
       const json = await fetch(schemaPath, { agent, headers }).then((rest) => rest.json());
       return json;
     } catch (error) {
