@@ -24,6 +24,8 @@ export type GenerateServiceProps = {
   requestLibPath?: string;
   requestOptionsType?: string;
   requestImportStatement?: string;
+  // interface 类型声明方式, 满足某些团队的开发规范
+  declareType?: 'type' | 'interface';
   /**
    * api 的前缀
    */
@@ -58,7 +60,7 @@ export type GenerateServiceProps = {
     /** 自定义类型名称 */
     customTypeName?: (data: APIDataType) => string;
     /** 自定义 options 默认值 */
-    customOptionsDefaultValue?: (data: OperationObject) =>  Record<string, any> | undefined;
+    customOptionsDefaultValue?: (data: OperationObject) => Record<string, any> | undefined;
     /** 自定义类名 */
     customClassName?: (tagName: string) => string;
 
