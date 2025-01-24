@@ -134,6 +134,9 @@ const gen = async () => {
     schemaPath: `${__dirname}/example-files/apispec_1.json`,
     serversPath: './apispe',
     mockFolder: './mocks',
+    mockConfig: {
+      // msw: true,
+    },
   });
 };
 gen();
