@@ -149,9 +149,9 @@ export type GenerateServiceProps = {
    */
   mockConfig?: {
     /**
-     * msw类型mock文件格式.  直接返回对象
-     * 举例:
-     *  // @ts-ignore
+      msw类型mock文件格式.  直接返回对象
+      举例:
+       // @ts-ignore
 
         export default {
           'DELETE /mydata/delete': { message: { message: 'Mydata successfully deleted' } },
