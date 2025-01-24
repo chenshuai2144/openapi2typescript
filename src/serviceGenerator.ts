@@ -441,7 +441,6 @@ class ServiceGenerator {
         // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
 
-        console.log('this.apiData[tag]', this.apiData, tag);
         const genParams = this.apiData[tag]
           .filter(
             (api) =>
@@ -450,7 +449,6 @@ class ServiceGenerator {
           )
           .map((api) => {
             const newApi = api;
-            console.log('newApi', newApi, newApi.requestBody);
             try {
               const allParams = this.getParamsTP(newApi.parameters, newApi.path);
               const body = this.getBodyTP(newApi.requestBody);

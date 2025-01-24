@@ -144,6 +144,32 @@ export type GenerateServiceProps = {
    * 模板文件、请求函数采用小驼峰命名
    */
   isCamelCase?: boolean;
+  /**
+   * mock配置
+   */
+  mockConfig?: {
+    /**
+     * msw类型mock文件格式.  直接返回对象
+     * 举例:
+     *  // @ts-ignore
+
+        export default {
+          'DELETE /mydata/delete': { message: { message: 'Mydata successfully deleted' } },
+        };
+
+
+        原文件:
+        // @ts-ignore
+        import { Request, Response } from 'express';
+
+        export default {
+          'DELETE /mydata/delete': (req: Request, res: Response) => {
+            res.status(200).send({ message: { message: 'Mydata successfully deleted' } });
+          },
+        };
+     */
+    msw?: boolean;
+  };
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
@@ -216,6 +242,7 @@ export const generateService = async ({
       enumStyle: 'string-literal',
       nullable,
       isCamelCase: true,
+      mockConfig: {},
       ...rest,
     },
     openAPI,
@@ -226,6 +253,7 @@ export const generateService = async ({
     await mockGenerator({
       openAPI,
       mockFolder: mockFolder || './mocks/',
+      mockConfig: rest.mockConfig || {},
     });
   }
 };
