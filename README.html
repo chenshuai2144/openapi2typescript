@@ -139,7 +139,7 @@
         </head>
         <body class="vscode-body vscode-light">
             <h2 id="介绍">介绍</h2>
-<p><a href="https://github.com/chenshuai2144/openapi2typescript"><img src="https://img.shields.io/github/stars/chenshuai2144/openapi2typescript?style=social" alt="GitHub Repo stars"></a> <a href="https://www.npmjs.com/package/@umijs/openapi"><img src="https://img.shields.io/npm/v/@umijs/openapi" alt="npm (scoped)"></a> <img src="https://img.shields.io/github/v/tag/chenshuai2144/openapi2typescript?include_prereleases" alt="GitHub tag (latest SemVer pre-release)"></p>
+<p><a href="https://github.com/KobeCYL/openapi2typescript"><img src="https://img.shields.io/github/stars/KobeCYL/openapi2typescript?style=social" alt="GitHub Repo stars"></a> <a href="https://www.npmjs.com/package/@umijs/openapi"><img src="https://img.shields.io/npm/v/@umijs/openapi" alt="npm (scoped)"></a> <img src="https://img.shields.io/github/v/tag/KobeCYL/openapi2typescript?include_prereleases" alt="GitHub tag (latest SemVer pre-release)"></p>
 <p>根据 <a href="https://swagger.io/blog/news/whats-new-in-openapi-3-0/">OpenApi3</a> 文档生成 request 请求代码。</p>
 <p>如果你使用 <a href="https://umijs.org">umi</a> ,你可以使用<a href="https://www.npmjs.com/package/@umijs/plugin-openapi">@umijs/plugin-openapi</a> 插件。</p>
 <h2 id="使用">使用</h2>
@@ -156,6 +156,34 @@
 <p>在 <code>package.json</code> 的 <code>script</code> 中添加 api: <code>&quot;openapi&quot;: &quot;ts-node openapi.config.ts&quot;,</code></p>
 <p>生成 api</p>
 <pre><code class="language-node">npm run openapi
+=======
+```bash
+npm i --save-dev @umijs/openapi
+</code></pre>
+<p>在项目根目录新建 <code>openapi2ts.config.ts</code> 或者 <code>.openapi2tsrc.ts</code></p>
+<blockquote>
+<p>配置文件还支持 <em><strong>openapi2ts.config.ts</strong></em>, <em><strong>.openapi2tsrc.json</strong></em> 等格式，参考 <a href="https://github.com/cosmiconfig/cosmiconfig?tab=readme-ov-file#cosmiconfig">cosmiconfig</a></p>
+</blockquote>
+<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
+  <span class="hljs-attr">schemaPath</span>: <span class="hljs-string">&#x27;http://petstore.swagger.io/v2/swagger.json&#x27;</span>,
+  <span class="hljs-attr">serversPath</span>: <span class="hljs-string">&#x27;./servers&#x27;</span>,
+}
+</code></pre>
+<p>如果单个项目有多个生成需求，支持传入数组配置</p>
+<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> [
+  {
+    <span class="hljs-attr">schemaPath</span>: <span class="hljs-string">&#x27;http://app.swagger.io/v2/swagger.json&#x27;</span>,
+    <span class="hljs-attr">serversPath</span>: <span class="hljs-string">&#x27;./servers/app&#x27;</span>,
+  },
+  {
+    <span class="hljs-attr">schemaPath</span>: <span class="hljs-string">&#x27;http://auth.swagger.io/v2/swagger.json&#x27;</span>,
+    <span class="hljs-attr">serversPath</span>: <span class="hljs-string">&#x27;./servers/auth&#x27;</span>,
+  }
+]
+</code></pre>
+<p>在 <code>package.json</code> 的 <code>script</code> 中添加 api: <code>&quot;openapi2ts&quot;: &quot;openapi2ts&quot;,</code></p>
+<p>生成api</p>
+<pre><code class="language-bash">npm run openapi2ts
 </code></pre>
 <h2 id="参数">参数</h2>
 <table>
@@ -254,6 +282,118 @@
 <td>-</td>
 </tr>
 <tr>
+<td>=======</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>属性</td>
+<td>必填</td>
+<td>备注</td>
+<td>类型</td>
+<td>默认值</td>
+</tr>
+<tr>
+<td>----</td>
+<td>----</td>
+<td>----</td>
+<td>----</td>
+<td>-</td>
+</tr>
+<tr>
+<td>requestLibPath</td>
+<td>否</td>
+<td>自定义请求方法路径</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>requestOptionsType</td>
+<td>否</td>
+<td>自定义请求方法 options 参数类型</td>
+<td>string</td>
+<td>{[key: string]: any}</td>
+</tr>
+<tr>
+<td>requestImportStatement</td>
+<td>否</td>
+<td>自定义请求方法表达式</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>apiPrefix</td>
+<td>否</td>
+<td>api 的前缀</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>serversPath</td>
+<td>否</td>
+<td>生成的文件夹的路径</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>schemaPath</td>
+<td>否</td>
+<td>Swagger 2.0 或 OpenAPI 3.0 的地址</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>projectName</td>
+<td>否</td>
+<td>项目名称</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>authorization</td>
+<td>否</td>
+<td>文档登录凭证</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>namespace</td>
+<td>否</td>
+<td>命名空间名称</td>
+<td>string</td>
+<td>API</td>
+</tr>
+<tr>
+<td>mockFolder</td>
+<td>否</td>
+<td>mock目录</td>
+<td>string</td>
+<td>-</td>
+</tr>
+<tr>
+<td>enumStyle</td>
+<td>否</td>
+<td>枚举样式</td>
+<td>string-literal | enum</td>
+<td>string-literal</td>
+</tr>
+<tr>
+<td>nullable</td>
+<td>否</td>
+<td>使用null代替可选</td>
+<td>boolean</td>
+<td>false</td>
+</tr>
+<tr>
+<td>dataFields</td>
+<td>否</td>
+<td>response中数据字段</td>
+<td>string[]</td>
+<td>-</td>
+</tr>
+<tr>
 <td>isCamelCase</td>
 <td>否</td>
 <td>小驼峰命名文件和请求函数</td>
@@ -266,6 +406,13 @@
 <td>interface 声明类型(适配不同的规范)</td>
 <td>type/interface</td>
 <td>type</td>
+</tr>
+<tr>
+<td>mockConfig</td>
+<td>否</td>
+<td>mock配置</td>
+<td><a href="#Mock-Config">Mock Config</a></td>
+<td>-</td>
 </tr>
 <tr>
 <td>hook</td>
@@ -315,6 +462,23 @@
 <td>customFileNames</td>
 <td>(<br>operationObject: OperationObject,<br>apiPath: string,<br>_apiMethod: string,<br>) =&gt; string[]</td>
 <td>自定义生成文件名，可返回多个，表示生成多个文件. <br> <em>返回为空，则使用默认的获取方法获取</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="mock-config">Mock Config</h2>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>msw</td>
+<td>boolean</td>
+<td>msw类型mock文件格式.  直接返回对象<br>举例:<br>// @ts-ignore<br><br>export default {<br>'DELETE /mydata/delete': { message: { message: 'Mydata successfully deleted' } }<br>};<br><br><br>原文件:<br>// @ts-ignore<br>import { Request, Response } from 'express';<br><br>export default {<br>'DELETE /mydata/delete': (req: Request, res: Response) =&gt; {<br>res.status(200).send({ message: { message: 'Mydata successfully deleted' } });<br>},<br>};</td>
 </tr>
 </tbody>
 </table>
