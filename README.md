@@ -96,7 +96,6 @@ npm run openapi2ts
 | dataFields | 否 | response中数据字段 | string[] | - |
 | isCamelCase | 否 | 小驼峰命名文件和请求函数 | boolean | true |
 | declareType | 否 | interface 声明类型(适配不同的规范) | type/interface | type |
-| mockConfig | 否 | mock配置 |  [Mock Config](#Mock-Config) | - |
 | hook | 否 | 自定义 hook | [Custom Hook](#Custom-Hook) | - |
 
 ## Custom Hook
@@ -109,10 +108,3 @@ npm run openapi2ts
 | customClassName | (tagName: string) => string | 自定义类名 |
 | customType | (<br>schemaObject: SchemaObject \| undefined,<br>namespace: string,<br>originGetType:(schemaObject: SchemaObject \| undefined, namespace: string) => string,<br>) => string | 自定义获取类型 <br> _返回非字符串将使用默认方法获取 type_ |
 | customFileNames | (<br>operationObject: OperationObject,<br>apiPath: string,<br>\_apiMethod: string,<br>) => string[] | 自定义生成文件名，可返回多个，表示生成多个文件. <br> _返回为空，则使用默认的获取方法获取_ |
-
-
-## Mock Config
-
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| msw | boolean | msw类型mock文件格式.  直接返回对象<br>举例:<br>// @ts-ignore<br><br>export default {<br>'DELETE /mydata/delete': { message: { message: 'Mydata successfully deleted' } }<br>};<br><br><br>原文件:<br>// @ts-ignore<br>import { Request, Response } from 'express';<br><br>export default {<br>'DELETE /mydata/delete': (req: Request, res: Response) => {<br>res.status(200).send({ message: { message: 'Mydata successfully deleted' } });<br>},<br>};|
