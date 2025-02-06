@@ -139,14 +139,14 @@
         </head>
         <body class="vscode-body vscode-light">
             <h2 id="介绍">介绍</h2>
-<p><a href="https://github.com/KobeCYL/openapi2typescript"><img src="https://img.shields.io/github/stars/KobeCYL/openapi2typescript?style=social" alt="GitHub Repo stars"></a> <a href="https://www.npmjs.com/package/@umijs/openapi"><img src="https://img.shields.io/npm/v/@umijs/openapi" alt="npm (scoped)"></a> <img src="https://img.shields.io/github/v/tag/KobeCYL/openapi2typescript?include_prereleases" alt="GitHub tag (latest SemVer pre-release)"></p>
+<p><a href="https://github.com/KobeCYL/openapi2typescript"><img src="https://img.shields.io/github/stars/KobeCYL/openapi2typescript?style=social" alt="GitHub Repo stars"></a> <a href="https://www.npmjs.com/package/imi-openapi-tools"><img src="https://img.shields.io/npm/v/imi-openapi-tools" alt="npm (scoped)"></a> <img src="https://img.shields.io/github/v/tag/KobeCYL/openapi2typescript?include_prereleases" alt="GitHub tag (latest SemVer pre-release)"></p>
 <p>根据 <a href="https://swagger.io/blog/news/whats-new-in-openapi-3-0/">OpenApi3</a> 文档生成 request 请求代码。</p>
 <p>如果你使用 <a href="https://umijs.org">umi</a> ,你可以使用<a href="https://www.npmjs.com/package/@umijs/plugin-openapi">@umijs/plugin-openapi</a> 插件。</p>
 <h2 id="使用">使用</h2>
-<pre><code class="language-node">npm i --save-dev @umijs/openapi
+<pre><code class="language-node">npm i --save-dev imi-openapi-tools
 </code></pre>
 <p>在项目根目录新建 <code>openapi.config.ts</code></p>
-<pre><code class="language-ts"><span class="hljs-keyword">const</span> { generateService } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;@umijs/openapi&#x27;</span>);
+<pre><code class="language-ts"><span class="hljs-keyword">const</span> { generateService } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;imi-openapi-tools&#x27;</span>);
 
 <span class="hljs-title function_">generateService</span>({
   <span class="hljs-attr">schemaPath</span>: <span class="hljs-string">&#x27;http://petstore.swagger.io/v2/swagger.json&#x27;</span>,
@@ -158,7 +158,7 @@
 <pre><code class="language-node">npm run openapi
 =======
 ```bash
-npm i --save-dev @umijs/openapi
+npm i --save-dev imi-openapi-tools
 </code></pre>
 <p>在项目根目录新建 <code>openapi2ts.config.ts</code> 或者 <code>.openapi2tsrc.ts</code></p>
 <blockquote>
