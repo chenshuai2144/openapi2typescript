@@ -226,12 +226,12 @@ const mockGenerator = async ({ openAPI, mockFolder, mockConfig }: genMockDataSer
       return;
     }
     if (file.includes('/')) {
-      const dirName = dirname(join(mockFolder, `${file}.mock.ts`));
+      const dirName = dirname(join(mockFolder, `${file}.ts`));
       if (!fs.existsSync(dirName)) {
         fs.mkdirSync(dirName);
       }
     }
-    writeFile(mockFolder, `${file}.mock.ts`, genMockFiles(mockActionsObj[file], mockConfig));
+    writeFile(mockFolder, `${file}.ts`, genMockFiles(mockActionsObj[file], mockConfig));
   });
   Log('✅ 生成 mock 文件成功');
 };
