@@ -1,13 +1,13 @@
 {
-  "name": "@umijs/openapi",
-  "version": "1.13.0",
+  "name": "imi-openapi-tools",
+  "version": "1.13.12",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git+git@github.com:chenshuai2144/openapi2typescript.git"
+    "url": "git+git@github.com:KobeCYL/openapi2typescript.git"
   },
   "license": "MIT",
-  "author": "chenshuai2144",
+  "author": "chenshuai2144/kobe",
   "main": "dist/index.js",
   "bin": {
     "openapi2ts": "dist/cli.js"

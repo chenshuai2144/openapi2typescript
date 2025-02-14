@@ -316,8 +316,7 @@ class ServiceGenerator {
       ...config,
     };
     if (this.config.hook?.afterOpenApiDataInited) {
-      this.openAPIData =
-        this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
+      this.openAPIData = this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
     } else {
       this.openAPIData = openAPIData;
     }
@@ -354,7 +353,6 @@ class ServiceGenerator {
         });
       });
     });
-    
   }
 
   public genFile() {
@@ -379,6 +377,8 @@ class ServiceGenerator {
       // namespace: 'API',
       list: this.getInterfaceTP(),
       disableTypeCheck: false,
+      declareType: this.config.declareType || 'type',
+      equalSymbol: (this.config.declareType || 'type') === 'type' ? '=' : '',
     });
     // 生成 controller 文件
     const prettierError = [];
@@ -440,6 +440,7 @@ class ServiceGenerator {
       .map((tag, index) => {
         // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
+
         const genParams = this.apiData[tag]
           .filter(
             (api) =>
@@ -478,9 +479,8 @@ class ServiceGenerator {
               );
               if (newApi.extensions && newApi.extensions['x-antTech-description']) {
                 const { extensions } = newApi;
-                const { apiName, antTechVersion, productCode, antTechApiName } = extensions[
-                  'x-antTech-description'
-                ];
+                const { apiName, antTechVersion, productCode, antTechApiName } =
+                  extensions['x-antTech-description'];
                 formattedPath = antTechApiName || formattedPath;
                 this.mappings.push({
                   antTechApi: formattedPath,
@@ -616,7 +616,7 @@ class ServiceGenerator {
       return null;
     }
     const reqContent: ContentObject = reqBody.content;
-    if (typeof reqContent !== 'object') {
+    if (typeof reqContent !== 'object' || (reqContent && Object.keys(reqContent).length === 0)) {
       return null;
     }
     let mediaType = Object.keys(reqContent)[0];

@@ -29,6 +29,7 @@ const gen = async () => {
     requestLibPath: "import request  from '@/request';",
     schemaPath: `${__dirname}/example-files/swagger-custom-hook.json`,
     serversPath: './servers/custom',
+    declareType: 'interface',
     hook: {
       // 自定义类名
       customClassName: (tagName) => {
@@ -133,6 +134,9 @@ const gen = async () => {
     schemaPath: `${__dirname}/example-files/apispec_1.json`,
     serversPath: './apispe',
     mockFolder: './mocks',
+    mockConfig: {
+      // msw: true,
+    },
   });
 };
 gen();
