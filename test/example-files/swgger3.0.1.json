@@ -131,6 +131,85 @@
                     }
                 }
             }
+        },
+        "/admin-api/system/oauth2/user/update": {
+            "get": {
+                "description": "New endpoint",
+                "responses": {
+                    "200": {
+                        "description": "New response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "": ""
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "管理后台 - OAuth2.0 用户"
+                ],
+                "summary": "更新用户基本信息",
+                "operationId": "updateUserInfo",
+                "parameters": [
+                    {
+                        "name": "AUTH_ID",
+                        "in": "header",
+                        "description": "Session Token",
+                        "schema": {
+                            "type": "string",
+                            "description": "session-id",
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "name": "tenant-id",
+                        "in": "header",
+                        "description": "租户编号",
+                        "schema": {
+                            "type": "integer",
+                            "description": "租户编号",
+                            "format": "int32",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "认证 Token",
+                        "schema": {
+                            "type": "string",
+                            "description": "认证 Token",
+                            "default": "Best test1"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OAuth2UserUpdateReqVO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommonResultBoolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -172,6 +251,55 @@
                         }
                     }
                 }
+            },
+            "CommonResultBoolean": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "data": {
+                        "type": "boolean"
+                    },
+                    "msg": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OAuth2UserUpdateReqVO": {
+                "required": [
+                    "nickname"
+                ],
+                "type": "object",
+                "properties": {
+                    "nickname": {
+                        "maxLength": 30,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "用户昵称",
+                        "example": "芋艿"
+                    },
+                    "email": {
+                        "maxLength": 50,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "example": "platform@iocoder.cn"
+                    },
+                    "mobile": {
+                        "type": "string",
+                        "description": "手机号码",
+                        "example": "15601691300"
+                    },
+                    "sex": {
+                        "type": "integer",
+                        "description": "用户性别，参见 SexEnum 枚举类",
+                        "format": "int32",
+                        "example": 1
+                    }
+                },
+                "description": "管理后台 - OAuth2 更新用户基本信息 Request VO"
             }
         }
     }

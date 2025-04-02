@@ -18,6 +18,7 @@ import { join } from 'path';
 import ReservedDict from 'reserved-words';
 import rimraf from 'rimraf';
 import pinyin from 'tiny-pinyin';
+import numberToWords from 'number-to-words';
 import type { GenerateServiceProps } from './index';
 import Log from './log';
 import { stripDot, writeFile } from './util';
@@ -83,7 +84,7 @@ const resolveTypeName = (typeName: string) => {
   }
   const typeLastName = getTypeLastName(typeName);
 
-  const name = typeLastName
+  let name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
@@ -92,6 +93,14 @@ const resolveTypeName = (typeName: string) => {
     Log('⚠️  models不能以number开头，原因可能是Model定义名称为中文, 建议联系后台修改');
     return `Pinyin_${name}`;
   }
+  // 前面的解析可能会吧类似"2.0"之类的tag文字解析成首字母带数字的key
+  // 后面要是再带点别的字符在生成ts className的时候会由于首字符带数字导致非法变量报错
+  // 这里做一个统一处理
+  if (/^\d/.test(name)) {
+    const firstChar = parseInt(name[0]);
+    name = `${numberToWords.toWords(firstChar)}${name.substring(1)}`
+  }
+
   if (!/[\u3220-\uFA29]/.test(name) && !/^\d$/.test(name)) {
     return name;
   }
