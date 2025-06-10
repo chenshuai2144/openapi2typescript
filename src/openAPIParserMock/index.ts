@@ -121,7 +121,7 @@ class OpenAPIGeneratorMockJs {
   }
 
   sampleFromSchema = (schema: any, propsName?: string[], schemaSet: Set<string> = new Set()) => {
-    let schemaRef = schema.$ref;
+    let schemaRef = schema?.$ref;
 
     if (schemaRef) {
       // 如果之前已经使用过该引用结构，直接返回null,不然会陷入无限递归的情况

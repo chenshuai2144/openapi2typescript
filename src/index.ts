@@ -24,6 +24,8 @@ export type GenerateServiceProps = {
   requestLibPath?: string;
   requestOptionsType?: string;
   requestImportStatement?: string;
+  // interface 类型声明方式, 满足某些团队的开发规范
+  declareType?: 'type' | 'interface';
   /**
    * api 的前缀
    */
@@ -62,7 +64,7 @@ export type GenerateServiceProps = {
     /** 自定义类型名称 */
     customTypeName?: (data: APIDataType) => string;
     /** 自定义 options 默认值 */
-    customOptionsDefaultValue?: (data: OperationObject) =>  Record<string, any> | undefined;
+    customOptionsDefaultValue?: (data: OperationObject) => Record<string, any> | undefined;
     /** 自定义类名 */
     customClassName?: (tagName: string) => string;
 
@@ -142,6 +144,32 @@ export type GenerateServiceProps = {
    * 模板文件、请求函数采用小驼峰命名
    */
   isCamelCase?: boolean;
+  /**
+   * mock配置
+   */
+  mockConfig?: {
+    /**
+     * msw类型mock文件格式.  直接返回对象
+     * 举例:
+     *  // @ts-ignore
+
+        export default {
+          'DELETE /mydata/delete': { message: { message: 'Mydata successfully deleted' } },
+        };
+
+
+        原文件:
+        // @ts-ignore
+        import { Request, Response } from 'express';
+
+        export default {
+          'DELETE /mydata/delete': (req: Request, res: Response) => {
+            res.status(200).send({ message: { message: 'Mydata successfully deleted' } });
+          },
+        };
+     */
+    msw?: boolean;
+  };
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
@@ -214,6 +242,7 @@ export const generateService = async ({
       enumStyle: 'string-literal',
       nullable,
       isCamelCase: true,
+      mockConfig: {},
       ...rest,
     },
     openAPI,
@@ -224,6 +253,7 @@ export const generateService = async ({
     await mockGenerator({
       openAPI,
       mockFolder: mockFolder || './mocks/',
+      mockConfig: rest.mockConfig || {},
     });
   }
 };
