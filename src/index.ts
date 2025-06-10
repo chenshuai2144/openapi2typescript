@@ -198,7 +198,7 @@ export const getSchema = async (schemaPath: string, authorization?: string) => {
       const headers = {
         authorization,
       };
-      const json = await fetch(schemaPath, { agent, headers }).then((rest) => rest.json());
+      const json = await fetch(schemaPath, { agent, headers: authorization? headers: {} }).then((rest) => rest.json());
       return json;
     } catch (error) {
       // eslint-disable-next-line no-console
