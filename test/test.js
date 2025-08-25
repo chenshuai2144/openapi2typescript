@@ -138,5 +138,11 @@ const gen = async () => {
       // msw: true,
     },
   });
+
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-splitdeclare.json`,
+    serversPath: './splitDeclare',
+    splitDeclare:true
+  });
 };
 gen();

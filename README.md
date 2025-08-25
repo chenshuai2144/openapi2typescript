@@ -81,6 +81,7 @@ npm run openapi2ts
 | dataFields | No | Data fields in response | string[] | - |
 | isCamelCase | No | Use camelCase for files and functions | boolean | true |
 | declareType | No | Interface declaration type | type/interface | type |
+| splitDeclare | No | Generate a separate .d.ts file for each tag group. | boolean | - |
 
 ### Custom Hooks
 
@@ -170,6 +171,7 @@ npm run openapi2ts
 | dataFields | 否 | response 中数据字段 | string[] | - |
 | isCamelCase | 否 | 小驼峰命名文件和请求函数 | boolean | true |
 | declareType | 否 | interface 声明类型 | type/interface | type |
+| splitDeclare | 否 | 每个tag组一个独立的.d.ts. | boolean | - |
 
 ### 自定义钩子
 
