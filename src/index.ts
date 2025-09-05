@@ -170,6 +170,8 @@ export type GenerateServiceProps = {
      */
     msw?: boolean;
   };
+  /**切割类型声明文件,默认为false*/
+  splitDeclare?:boolean
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
