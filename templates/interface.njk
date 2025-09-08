@@ -4,7 +4,7 @@ declare namespace {{ namespace }} {
       {%- if type.isEnum %}
         enum {{ type.typeName | safe }} 
       {%- else %}
-        type {{ type.typeName | safe }} =
+        {{ declareType }} {{ type.typeName | safe }} {{ equalSymbol }}
       {%- endif %}
       {%- for prop in type.props %}
         {%- if prop.length > 1 %}

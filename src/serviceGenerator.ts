@@ -18,9 +18,11 @@ import { join } from 'path';
 import ReservedDict from 'reserved-words';
 import rimraf from 'rimraf';
 import pinyin from 'tiny-pinyin';
+import numberToWords from 'number-to-words';
 import type { GenerateServiceProps } from './index';
 import Log from './log';
 import { stripDot, writeFile } from './util';
+import fs from 'fs';
 
 const BASE_DIRS = ['service', 'services'];
 
@@ -83,7 +85,7 @@ const resolveTypeName = (typeName: string) => {
   }
   const typeLastName = getTypeLastName(typeName);
 
-  const name = typeLastName
+  let name = typeLastName
     .replace(/[-_ ](\w)/g, (_all, letter) => letter.toUpperCase())
     .replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
 
@@ -92,6 +94,14 @@ const resolveTypeName = (typeName: string) => {
     Log('⚠️  models不能以number开头，原因可能是Model定义名称为中文, 建议联系后台修改');
     return `Pinyin_${name}`;
   }
+  // 前面的解析可能会吧类似"2.0"之类的tag文字解析成首字母带数字的key
+  // 后面要是再带点别的字符在生成ts className的时候会由于首字符带数字导致非法变量报错
+  // 这里做一个统一处理
+  if (/^\d/.test(name)) {
+    const firstChar = parseInt(name[0]);
+    name = `${numberToWords.toWords(firstChar)}${name.substring(1)}`
+  }
+
   if (!/[\u3220-\uFA29]/.test(name) && !/^\d$/.test(name)) {
     return name;
   }
@@ -316,8 +326,7 @@ class ServiceGenerator {
       ...config,
     };
     if (this.config.hook?.afterOpenApiDataInited) {
-      this.openAPIData =
-        this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
+      this.openAPIData = this.config.hook.afterOpenApiDataInited(openAPIData) || openAPIData;
     } else {
       this.openAPIData = openAPIData;
     }
@@ -354,15 +363,13 @@ class ServiceGenerator {
         });
       });
     });
-    
   }
 
   public genFile() {
     const basePath = this.config.serversPath || './src/service';
+    const finalPath = join(basePath, this.config.projectName);
+    this.finalPath = finalPath;
     try {
-      const finalPath = join(basePath, this.config.projectName);
-
-      this.finalPath = finalPath;
       glob
         .sync(`${finalPath}/**/*`)
         .filter((ele) => !ele.includes('_deperated'))
@@ -372,14 +379,27 @@ class ServiceGenerator {
     } catch (error) {
       Log(`🚥 serves 生成失败: ${error}`);
     }
-    // 生成 ts 类型声明
-    this.genFileFromTemplate('typings.d.ts', 'interface', {
-      namespace: this.config.namespace,
-      nullable: this.config.nullable,
-      // namespace: 'API',
-      list: this.getInterfaceTP(),
-      disableTypeCheck: false,
-    });
+    if(!this.config.splitDeclare){
+      // 生成 ts 类型声明
+      this.genFileFromTemplate('typings.d.ts', 'interface', {
+        namespace: this.config.namespace,
+        nullable: this.config.nullable,
+        // namespace: 'API',
+        list: this.getInterfaceTP(),
+        disableTypeCheck: false,
+        declareType: this.config.declareType || 'type',
+        equalSymbol: (this.config.declareType || 'type') === 'type' ? '=' : '',
+      });
+    }
+    else{
+      // 创建存放声明文件的文件夹
+      const typesDir = join(finalPath, 'types');
+      if (!existsSync(typesDir)) {
+        fs.mkdirSync(typesDir, { recursive: true });
+      }
+      // 按tag生成多个类型声明文件
+      this.genTypeFilesByTag();
+    }
     // 生成 controller 文件
     const prettierError = [];
     // 生成 service 统计
@@ -440,6 +460,7 @@ class ServiceGenerator {
       .map((tag, index) => {
         // functionName tag 级别防重
         const tmpFunctionRD: Record<string, number> = {};
+
         const genParams = this.apiData[tag]
           .filter(
             (api) =>
@@ -478,9 +499,8 @@ class ServiceGenerator {
               );
               if (newApi.extensions && newApi.extensions['x-antTech-description']) {
                 const { extensions } = newApi;
-                const { apiName, antTechVersion, productCode, antTechApiName } = extensions[
-                  'x-antTech-description'
-                ];
+                const { apiName, antTechVersion, productCode, antTechApiName } =
+                  extensions['x-antTech-description'];
                 formattedPath = antTechApiName || formattedPath;
                 this.mappings.push({
                   antTechApi: formattedPath,
@@ -616,7 +636,7 @@ class ServiceGenerator {
       return null;
     }
     const reqContent: ContentObject = reqBody.content;
-    if (typeof reqContent !== 'object') {
+    if (typeof reqContent !== 'object' || (reqContent && Object.keys(reqContent).length === 0)) {
       return null;
     }
     let mediaType = Object.keys(reqContent)[0];
@@ -1118,6 +1138,144 @@ class ServiceGenerator {
       return `${functionName}Using${methodName.toUpperCase()}`;
     }
     return functionName;
+  }
+  // 按tag生成类型文件
+  private genTypeFilesByTag() {
+    const { components } = this.openAPIData;
+    if (!components || !components.schemas) {
+      return;
+    }
+    const allSchemas = components.schemas;
+    const tagTypes: Record<string, any[]> = {};
+    Object.keys(this.apiData).forEach(tag => {
+      tagTypes[tag] = [];
+    });
+    // 将schema按使用情况分配到对应的tag
+    Object.keys(allSchemas).forEach(typeName => {
+      const schema = allSchemas[typeName];
+      const result = this.resolveObject(schema);
+      const usedInTags = this.findTagsUsingType(typeName); 
+      if (usedInTags.length > 0) {
+        // 将类型添加到使用它的所有tag中
+        usedInTags.forEach(tag => {
+          if (tagTypes[tag]) {
+            tagTypes[tag].push({
+              typeName: resolveTypeName(typeName),
+              type: this.getDefinesType(result),
+              parent: result.parent,
+              props: result.props || [],
+              isEnum: result.isEnum,
+            });
+          }
+        });
+      } else {
+        // 如果没有找到使用的地方，添加到第一个tag中（作为通用类型）
+        const firstTag = Object.keys(tagTypes)[0];
+        if (firstTag) {
+          tagTypes[firstTag].push({
+            typeName: resolveTypeName(typeName),
+            type: this.getDefinesType(result),
+            parent: result.parent,
+            props: result.props || [],
+            isEnum: result.isEnum,
+          });
+        }
+      }
+    });
+
+    // 为每个tag生成对应的类型文件到types目录
+    Object.keys(tagTypes).forEach(tag => {
+      if (tagTypes[tag].length > 0) {
+        const fileName = `${this.replaceDot(tag)}.d.ts`;
+        
+        // 添加该tag下API的参数类型
+        const tagApiData = this.apiData[tag];
+        if (tagApiData) {
+          tagApiData.forEach(api => {
+            const props = [];
+            if (api.parameters) {
+              api.parameters.forEach((parameter: any) => {
+                props.push({
+                  desc: parameter.description ?? '',
+                  name: parameter.name,
+                  required: parameter.required,
+                  type: this.getType(parameter.schema),
+                });
+              });
+            }
+            
+            if (props.length > 0) {
+              tagTypes[tag].push({
+                typeName: this.getTypeName({ ...api, method: api.method, path: api.path }),
+                type: 'Record<string, any>',
+                parent: undefined,
+                props: [props],
+                isEnum: false,
+              });
+            }
+          });
+        }
+        // 排序
+        tagTypes[tag].sort((a, b) => a.typeName.localeCompare(b.typeName));
+        this.genFileFromTemplate(`types/${fileName}`, 'interface', {
+          namespace: this.config.namespace,
+          nullable: this.config.nullable,
+          list: tagTypes[tag],
+          disableTypeCheck: false,
+          declareType: this.config.declareType || 'type',
+          equalSymbol: (this.config.declareType || 'type') === 'type' ? '=' : '',
+        });
+      }
+    });
+  }
+  private findTagsUsingType(typeName: string): string[] {
+    const usedInTags: string[] = [];
+    Object.keys(this.apiData).forEach(tag => {
+      const tagApis = this.apiData[tag];
+      const isUsed = tagApis.some(api => {
+        if (api.parameters) {
+          return api.parameters.some((param: any) => {
+            const resolvedParam = this.resolveRefObject(param);
+            return resolvedParam.schema?.$ref?.includes(typeName) || 
+                   resolvedParam.$ref?.includes(typeName);
+          });
+        }
+        if (api.requestBody) {
+          const resolvedBody = this.resolveRefObject(api.requestBody);
+          if (resolvedBody.content) {
+            const mediaType = Object.keys(resolvedBody.content)[0];
+            const schema = resolvedBody.content[mediaType]?.schema;
+            if (schema?.$ref?.includes(typeName)) {
+              return true;
+            }
+          }
+        }
+        if (api.responses) {
+          const response = this.resolveRefObject(api.responses['200'] || api.responses.default);
+          if (response?.content) {
+            const mediaType = Object.keys(response.content)[0];
+            const schema = response.content[mediaType]?.schema;
+            if (schema?.$ref?.includes(typeName)) {
+              return true;
+            }
+          }
+        }
+        
+        return false;
+      });
+      
+      if (isUsed) {
+        usedInTags.push(tag);
+      }
+    });
+    
+    return usedInTags;
+  }
+  private getDefinesType(result: any) {
+    if (result.type) {
+      return (result as any).type === 'object' || result.type;
+    }
+    return 'Record<string, any>';
   }
 }
 
