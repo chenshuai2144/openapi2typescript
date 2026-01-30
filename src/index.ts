@@ -38,6 +38,7 @@ export type GenerateServiceProps = {
         functionName: string;
         autoExclude?: boolean;
       }) => string);
+  dedupeApiPrefix?: boolean
   /**
    * 生成的文件夹的路径
    */

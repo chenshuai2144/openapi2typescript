@@ -1,0 +1,111 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Test Dedupe API Prefix True",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/apiInfo/get": {
+      "get": {
+        "operationId": "getApiInfo",
+        "tags": ["api"],
+        "summary": "Get API Info",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/apiInfo/update": {
+      "post": {
+        "operationId": "updateApiInfo",
+        "tags": ["api"],
+        "summary": "Update API Info",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/profile": {
+      "get": {
+        "operationId": "getUserProfile",
+        "tags": ["user"],
+        "summary": "Get User Profile",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/info": {
+      "post": {
+        "operationId": "getUserInfo",
+        "tags": ["user"],
+        "summary": "Get User Info",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/product/list": {
+      "get": {
+        "operationId": "getProductList",
+        "tags": ["product"],
+        "summary": "Get Product List",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  }
+}

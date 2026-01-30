@@ -69,7 +69,8 @@ npm run openapi2ts
 | requestLibPath | No | Custom request method path | string | - |
 | requestOptionsType | No | Custom request options type | string | {[key: string]: any} |
 | requestImportStatement | No | Custom request import statement | string | - |
-| apiPrefix | No | API prefix | string | - |
+| apiPrefix | No | API prefix | string \| function | - |
+| dedupeApiPrefix | No | Whether to deduplicate API prefix when it already exists in the path | boolean | true |
 | serversPath | No | Output directory path | string | - |
 | schemaPath | No | Swagger 2.0 or OpenAPI 3.0 URL | string | - |
 | projectName | No | Project name | string | - |
@@ -82,6 +83,29 @@ npm run openapi2ts
 | isCamelCase | No | Use camelCase for files and functions | boolean | true |
 | declareType | No | Interface declaration type | type/interface | type |
 | splitDeclare | No | Generate a separate .d.ts file for each tag group. | boolean | - |
+
+#### About `apiPrefix` and `dedupeApiPrefix`
+
+The `apiPrefix` option allows you to add a prefix to all generated API paths. It can be:
+- A string literal: `apiPrefix: "'/api'"` - The prefix will be processed as a string value
+- A function that returns a string: `apiPrefix: (data) => "/api"` - Dynamically determine the prefix
+
+The `dedupeApiPrefix` option controls how to handle prefixes:
+- `true` (default): When the API path already contains the specified prefix, it will be deduplicated (not added again)
+  - Example: path `/api/user/list` with `apiPrefix: "'/api'"` → remains `/api/user/list` (not `/api/api/user/list`)
+- `false`: No deduplication, the prefix will be treated as a variable reference
+  - Example: path `/user/list` with `apiPrefix: "'/api'"` and `dedupeApiPrefix: false` → becomes `${'/api'}/user/list`
+
+Example configuration:
+
+```typescript
+export default {
+  schemaPath: 'http://petstore.swagger.io/v2/swagger.json',
+  serversPath: './servers',
+  apiPrefix: "'/api'",  // or apiPrefix: (data) => "/api"
+  dedupeApiPrefix: true,  // Deduplicate prefix if it already exists
+}
+```
 
 ### Custom Hooks
 
@@ -159,7 +183,8 @@ npm run openapi2ts
 | requestLibPath | 否 | 自定义请求方法路径 | string | - |
 | requestOptionsType | 否 | 自定义请求方法 options 参数类型 | string | {[key: string]: any} |
 | requestImportStatement | 否 | 自定义请求方法表达式 | string | - |
-| apiPrefix | 否 | API 前缀 | string | - |
+| apiPrefix | 否 | API 前缀 | string \| function | - |
+| dedupeApiPrefix | 否 | 当路径中已存在前缀时是否进行去重 | boolean | true |
 | serversPath | 否 | 生成文件夹的路径 | string | - |
 | schemaPath | 否 | Swagger 2.0 或 OpenAPI 3.0 的地址 | string | - |
 | projectName | 否 | 项目名称 | string | - |
@@ -172,6 +197,29 @@ npm run openapi2ts
 | isCamelCase | 否 | 小驼峰命名文件和请求函数 | boolean | true |
 | declareType | 否 | interface 声明类型 | type/interface | type |
 | splitDeclare | 否 | 每个tag组一个独立的.d.ts. | boolean | - |
+
+#### 关于 `apiPrefix` 和 `dedupeApiPrefix`
+
+`apiPrefix` 选项用于为生成的所有 API 路径添加前缀，支持两种形式：
+- 字符串字面量：`apiPrefix: "'/api'"` - 前缀将被作为字符串值处理
+- 函数：`apiPrefix: (data) => "/api"` - 动态决定前缀
+
+`dedupeApiPrefix` 选项控制如何处理前缀：
+- `true`（默认）：当 API 路径已包含指定的前缀时，会进行去重处理（不再添加）
+  - 示例：路径 `/api/user/list`，配置 `apiPrefix: "'/api'"` → 保持 `/api/user/list`（不会变成 `/api/api/user/list`）
+- `false`：不进行去重，前缀将被作为变量引用处理
+  - 示例：路径 `/user/list`，配置 `apiPrefix: "'/api'"` 和 `dedupeApiPrefix: false` → 生成 `${'/api'}/user/list`
+
+配置示例：
+
+```typescript
+export default {
+  schemaPath: 'http://petstore.swagger.io/v2/swagger.json',
+  serversPath: './servers',
+  apiPrefix: "'/api'",  // 或者 apiPrefix: (data) => "/api"
+  dedupeApiPrefix: true,  // 当前缀已存在时进行去重
+}
+```
 
 ### 自定义钩子
 

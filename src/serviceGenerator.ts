@@ -323,6 +323,7 @@ class ServiceGenerator {
     this.config = {
       projectName: 'api',
       templatesFolder: join(__dirname, '../', 'templates'),
+      dedupeApiPrefix: true,
       ...config,
     };
     if (this.config.hook?.afterOpenApiDataInited) {
@@ -554,7 +555,7 @@ class ServiceGenerator {
                   return formattedPath;
                 }
 
-                if (prefix.startsWith("'") || prefix.startsWith('"') || prefix.startsWith('`')) {
+                if (this.config.dedupeApiPrefix && (prefix.startsWith("'") || prefix.startsWith('"') || prefix.startsWith('`'))) {
                   const finalPrefix = prefix.slice(1, prefix.length - 1);
                   if (
                     formattedPath.startsWith(finalPrefix) ||

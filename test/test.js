@@ -139,10 +139,76 @@ const gen = async () => {
     },
   });
 
+  // await openAPI.generateService({
+  //   schemaPath: `${__dirname}/example-files/swagger-splitdeclare.json`,
+  //   serversPath: './splitDeclare',
+  //   splitDeclare:true
+  // });
+
+  // Test dedupeApiPrefix 配置的两种场景
+  // 使用同一个 swagger 文件，通过不同的 dedupeApiPrefix 配置演示不同的行为
+  
+  // 场景1：dedupeApiPrefix: true - 去重模式
+  // 当 apiPrefix 为 '/api'，路径已经包含 '/api' 前缀时（如 /api/apiInfo/xxx），
+  // 设置 dedupeApiPrefix: true 会去重，生成的路径仍为 /api/apiInfo/xxx（不重复添加）
   await openAPI.generateService({
-    schemaPath: `${__dirname}/example-files/swagger-splitdeclare.json`,
-    serversPath: './splitDeclare',
-    splitDeclare:true
+    schemaPath: `${__dirname}/example-files/swagger-dedupe-api-prefix.json`,
+    serversPath: './servers/dedupe-api-prefix/true',
+    apiPrefix: `'/api'`,
+    dedupeApiPrefix: true,
   });
+
+  const dedupeApiPrefixTrueApiControllerStr = fs.readFileSync(
+    path.join(__dirname, 'servers/dedupe-api-prefix/true/api/api.ts'),
+    'utf8',
+  );
+  const dedupeApiPrefixTrueUserControllerStr = fs.readFileSync(
+    path.join(__dirname, 'servers/dedupe-api-prefix/true/api/user.ts'),
+    'utf8',
+  );
+  
+  // /api/apiInfo/get 已经有 /api 前缀，dedupeApiPrefix: true 会去重，保持 /api/apiInfo/get
+  assert(dedupeApiPrefixTrueApiControllerStr.indexOf(`'/api/apiInfo/get'`) > 0 || 
+         dedupeApiPrefixTrueApiControllerStr.indexOf('`/api/apiInfo/get`') > 0,
+         'dedupeApiPrefix=true: /api/apiInfo/get should remain as /api/apiInfo/get (not /api/api/apiInfo/get)');
+  
+  assert(dedupeApiPrefixTrueApiControllerStr.indexOf(`'/api/apiInfo/update'`) > 0 || 
+         dedupeApiPrefixTrueApiControllerStr.indexOf('`/api/apiInfo/update`') > 0,
+         'dedupeApiPrefix=true: /api/apiInfo/update should remain as /api/apiInfo/update');
+  
+  assert(dedupeApiPrefixTrueUserControllerStr.indexOf(`'/api/user/profile'`) > 0 || 
+         dedupeApiPrefixTrueUserControllerStr.indexOf('`/api/user/profile`') > 0,
+         'dedupeApiPrefix=true: /api/user/profile should remain as /api/user/profile');
+
+  
+  // 场景2：dedupeApiPrefix: false - 非去重模式
+  // 同一个 swagger 文件，设置 dedupeApiPrefix: false 时，不检查前缀，直接作为变量引用
+  // 导致前缀被重复添加
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-dedupe-api-prefix.json`,
+    serversPath: './servers/dedupe-api-prefix/false',
+    apiPrefix: `'/api'`,
+    dedupeApiPrefix: false,
+  });
+
+  const dedupeApiPrefixFalseApiControllerStr = fs.readFileSync(
+    path.join(__dirname, 'servers/dedupe-api-prefix/false/api/api.ts'),
+    'utf8',
+  );
+  const dedupeApiPrefixFalseUserControllerStr = fs.readFileSync(
+    path.join(__dirname, 'servers/dedupe-api-prefix/false/api/user.ts'),
+    'utf8',
+  );
+  
+  // 当 dedupeApiPrefix: false 时，同样的路径会被作为变量引用，导致前缀被拼接
+  // /api/apiInfo/get 会变成 ${'/api'}/api/apiInfo/get
+  assert(dedupeApiPrefixFalseApiControllerStr.indexOf("${'/api'}/api/apiInfo/get") > 0,
+         'dedupeApiPrefix=false: /api/apiInfo/get should become ${' + "'" + '/api' + "'" + '}/api/apiInfo/get (duplication)');
+  
+  assert(dedupeApiPrefixFalseApiControllerStr.indexOf("${'/api'}/api/apiInfo/update") > 0,
+         'dedupeApiPrefix=false: /api/apiInfo/update should become ${' + "'" + '/api' + "'" + '}/api/apiInfo/update (duplication)');
+  
+  assert(dedupeApiPrefixFalseUserControllerStr.indexOf("${'/api'}/api/user/profile") > 0,
+         'dedupeApiPrefix=false: /api/user/profile should become ${' + "'" + '/api' + "'" + '}/api/user/profile (duplication)');
 };
 gen();
