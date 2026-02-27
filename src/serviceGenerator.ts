@@ -1186,36 +1186,36 @@ class ServiceGenerator {
 
     // 为每个tag生成对应的类型文件到types目录
     Object.keys(tagTypes).forEach(tag => {
+      // 先收集该tag下API的参数类型（query params等）
+      const tagApiData = this.apiData[tag];
+      if (tagApiData) {
+        tagApiData.forEach(api => {
+          const props = [];
+          if (api.parameters) {
+            api.parameters.forEach((parameter: any) => {
+              props.push({
+                desc: parameter.description ?? '',
+                name: parameter.name,
+                required: parameter.required,
+                type: this.getType(parameter.schema),
+              });
+            });
+          }
+
+          if (props.length > 0) {
+            tagTypes[tag].push({
+              typeName: this.getTypeName({ ...api, method: api.method, path: api.path }),
+              type: 'Record<string, any>',
+              parent: undefined,
+              props: [props],
+              isEnum: false,
+            });
+          }
+        });
+      }
+
       if (tagTypes[tag].length > 0) {
         const fileName = `${this.replaceDot(tag)}.d.ts`;
-        
-        // 添加该tag下API的参数类型
-        const tagApiData = this.apiData[tag];
-        if (tagApiData) {
-          tagApiData.forEach(api => {
-            const props = [];
-            if (api.parameters) {
-              api.parameters.forEach((parameter: any) => {
-                props.push({
-                  desc: parameter.description ?? '',
-                  name: parameter.name,
-                  required: parameter.required,
-                  type: this.getType(parameter.schema),
-                });
-              });
-            }
-            
-            if (props.length > 0) {
-              tagTypes[tag].push({
-                typeName: this.getTypeName({ ...api, method: api.method, path: api.path }),
-                type: 'Record<string, any>',
-                parent: undefined,
-                props: [props],
-                isEnum: false,
-              });
-            }
-          });
-        }
         // 排序
         tagTypes[tag].sort((a, b) => a.typeName.localeCompare(b.typeName));
         this.genFileFromTemplate(`types/${fileName}`, 'interface', {
